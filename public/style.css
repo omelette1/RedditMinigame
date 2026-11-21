@@ -27,6 +27,60 @@ body { margin: 0; min-width: 320px; min-height: 100vh; background: radial-gradie
 button { font: inherit; }
 button:focus-visible, a:focus-visible, [tabindex="0"]:focus-visible { outline: 3px solid var(--orange); outline-offset: 3px; }
 .app-shell { width: min(1380px, 100%); margin: 0 auto; padding: 0 48px; }
+[hidden] { display: none !important; }
+.screen { display: none; min-height: 65vh; padding: 12px 0 26px; }
+.screen.is-active { display: block; }
+.flow-progress { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 17px 0 4px; color: #788982; font: 9px var(--mono); letter-spacing: .06em; }
+.flow-progress span { display: flex; gap: 6px; align-items: center; }
+.flow-progress b { font-weight: 500; }
+.flow-progress span.is-current { color: var(--paper); }
+.flow-progress span.is-current b { color: var(--orange); }
+.flow-progress span.is-complete { color: #b8c4b4; }
+.flow-progress i { width: clamp(16px, 5vw, 64px); height: 1px; background: #4c5d56; }
+.screen-heading { max-width: 760px; margin: 0 auto 27px; text-align: center; }
+.screen-heading h2 { margin: 10px 0 8px; color: var(--paper); font: 500 clamp(30px, 4vw, 48px)/1.05 var(--serif); }
+.screen-heading p:last-child { max-width: 590px; margin: 0 auto; color: #bac6ba; font-size: 14px; line-height: 1.6; }
+.compact-heading { margin-bottom: 18px; }
+.title-screen { padding-top: 0; }
+.cover-card { width: min(560px, 100%); margin: 0 auto 32px; padding: 23px 25px 20px; border: 1px solid rgba(232,222,197,.22); border-radius: 7px; background: linear-gradient(145deg, #1c2c2e, #142124); }
+.cover-card > p:nth-child(2) { max-width: 460px; margin: 11px 0 18px; color: #d5ddcf; font: 18px/1.55 var(--serif); }
+.cover-card .choose-button { max-width: 330px; margin: 0 auto; }
+.cover-footnote { margin: 14px 0 0; color: #91a097; text-align: center; font: 8px var(--mono); letter-spacing: .06em; }
+.briefing-screen { max-width: 760px; margin: 0 auto; }
+.briefing-screen .traveler-section { margin: 34px auto 0; padding: 20px; border: 1px solid var(--line); border-radius: 7px; background: #19282a; }
+.briefing-screen .traveler-options { grid-template-columns: 1fr 1fr; }
+.briefing-screen .traveler-card { min-height: 78px; }
+.traveler-explainer { margin: 14px 2px 0; color: #c7d0c3; font-size: 12px; line-height: 1.5; }
+.screen-actions { display: flex; align-items: center; justify-content: space-between; gap: 14px; width: min(760px, 100%); margin: 24px auto 0; }
+.screen-actions .choose-button { width: auto; min-width: 250px; margin: 0; }
+.back-button { min-height: 42px; padding: 0 12px; border: 1px solid #4a5b55; border-radius: 4px; background: transparent; color: #b8c4b4; font: 9px var(--mono); letter-spacing: .04em; cursor: pointer; }
+.back-button:hover { border-color: var(--orange); color: var(--paper); }
+.plan-screen .game-layout { margin-bottom: 0; }
+.map-holder { min-width: 0; }
+.plan-actions { display: grid; grid-template-columns: 1fr; gap: 7px; margin-top: auto; }
+.plan-actions .choose-button { margin-top: 8px; }
+.loading-screen { min-height: 70vh; display: none; align-items: center; justify-content: center; }
+.loading-screen.is-active { display: flex; }
+.loading-card { width: min(520px, 100%); padding: 32px; border: 1px solid #48574e; border-radius: 8px; background: radial-gradient(ellipse at 50% 0, #2b3b37, #172528 70%); text-align: center; box-shadow: 0 26px 80px #0003; }
+.loading-card h2 { margin: 12px 0; color: var(--paper); font: 500 34px/1.1 var(--serif); }
+.loading-card > p:not(.eyebrow):not(.loading-footnote) { min-height: 24px; color: #c6d0c4; font-size: 13px; }
+.loading-progress { margin: 23px 0 19px; }
+.dispatch-summary { display: flex; justify-content: center; align-items: center; gap: 12px; padding: 12px; border: 1px solid #3d4d48; color: #e4e2d2; font: 9px var(--mono); letter-spacing: .06em; }
+.dispatch-summary b { color: var(--orange); }
+.loading-footnote { margin: 18px 0 0; color: #94a398; font-size: 11px; line-height: 1.5; }
+.crossing-layout { align-items: stretch; }
+.crossing-map .map-panel { min-height: 100%; }
+.crossing-log { justify-content: flex-start; gap: 13px; }
+.crossing-log-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.crossing-log-list li { display: grid; gap: 4px; padding: 10px 11px; border-left: 2px solid #778a75; background: #253538; color: #dce1d3; font-size: 11px; line-height: 1.45; animation: log-arrive .22s ease-out both; }
+.crossing-log-list li strong { color: #e8a076; font: 8px var(--mono); letter-spacing: .07em; text-transform: uppercase; }
+.report-actions { width: 100%; }
+.report-actions .turn-note { max-width: 440px; text-align: left; }
+.report-screen { max-width: 760px; margin: 0 auto; }
+.report-screen .result-paper { border: 1px solid #9c8d6b; box-shadow: 0 22px 80px #0002; }
+.report-screen .result-paper h2 { color: var(--ink); }
+.report-screen .screen-actions { width: 100%; }
+@keyframes log-arrive { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 .masthead { min-height: 76px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 20px; }
 .wordmark { color: var(--paper); text-decoration: none; display: flex; align-items: center; gap: 12px; font: 10px var(--mono); letter-spacing: .1em; }
 .wordmark-mark { width: 32px; height: 32px; border: 1px solid var(--orange); border-radius: 50%; color: var(--orange); display: grid; place-items: center; font-size: 10px; letter-spacing: -.08em; }
@@ -162,6 +216,7 @@ dialog::backdrop { background: #071315c9; backdrop-filter: blur(4px); }
   .app-shell { padding: 0 24px; }
   .game-layout { grid-template-columns: minmax(0, 1.1fr) minmax(330px, .9fr); gap: 14px; }
   .side-panel { padding: 15px 13px 13px; }
+  .crossing-layout { grid-template-columns: minmax(0, 1fr) minmax(300px, .8fr); }
   .traveler-card { padding: 8px 6px; gap: 6px; }
   .traveler-icon { flex-basis: 25px; height: 25px; }
   .traveler-text strong { font-size: 11px; }
@@ -180,6 +235,25 @@ dialog::backdrop { background: #071315c9; backdrop-filter: blur(4px); }
   .day-stamp { width: 80px; height: 80px; margin-right: 5px; font-size: 6px; }
   .day-stamp strong { font-size: 27px; }
   .game-layout { display: flex; flex-direction: column; }
+  .flow-progress { gap: 7px; font-size: 7px; }
+  .flow-progress span { gap: 4px; }
+  .flow-progress i { width: 13px; }
+  .screen { min-height: 0; padding-top: 9px; }
+  .screen-heading { margin-bottom: 19px; }
+  .screen-heading p:last-child { font-size: 12px; }
+  .cover-card { padding: 18px 16px; }
+  .cover-card > p:nth-child(2) { font-size: 16px; }
+  .briefing-screen .traveler-section { margin-top: 23px; padding: 14px; }
+  .screen-actions { align-items: stretch; flex-direction: column-reverse; }
+  .screen-actions .choose-button { width: 100%; }
+  .screen-actions .back-button { width: 100%; }
+  .plan-actions { display: flex; flex-direction: column-reverse; }
+  .plan-actions .choose-button { margin-top: 0; }
+  .loading-card { padding: 24px 17px; }
+  .crossing-layout { display: flex; }
+  .crossing-map .map-panel { min-height: auto; }
+  .report-actions .turn-note { max-width: none; text-align: center; }
+  .report-screen .result-paper { padding: 26px 19px 20px; }
   .panel-heading { padding: 16px 16px 8px; }
   .map-wrap { padding: 0 7px; }
   .map-footer { padding: 8px 14px 10px; font-size: 7px; }

@@ -4,11 +4,14 @@ A solo daily expedition for Reddit’s Devvit Interactive Posts. Get a traveler 
 
 ## How to play
 
-1. Choose one traveler. Their promise is your goal: keep a moth asleep, deliver a letter, find an object, or protect someone from the weather.
-2. Compare the route claims with the field notes. The survey date is evidence, not a guarantee.
-3. Optionally spend your one scouting lantern to verify the route you have selected.
-4. Run the crossing. The traveler moves across the map; the simulation shows when the ground matches or contradicts the chart and whether the promise survives.
-5. Share the expedition report. You can replay with the other traveler to see a different tradeoff.
+1. **Cover:** open today’s dispatch.
+2. **Dispatch:** choose a traveler. Their promise is your goal: keep a moth asleep, deliver a letter, find an object, or protect someone from the weather.
+3. **Planning:** compare the route claims with the field notes. The survey date is evidence, not a guarantee. Optionally spend your one scouting lantern to verify the selected route.
+4. **Preparation:** the game confirms the traveler and route before the crossing begins.
+5. **Crossing:** follow the traveler on the map. A field log explains when the ground matches or contradicts the chart and whether the promise survives.
+6. **Report:** read and share the outcome. Replay with the other traveler to see a different tradeoff.
+
+The screens are sequential: each action unlocks the next stage, and the report is available only after the crossing simulation finishes.
 
 There are no dice rolls. Each daily case has authored route conditions and outcomes, so the journey is deterministic and the clues explain what happened.
 
