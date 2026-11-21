@@ -1,18 +1,26 @@
 # The Unreliable Map
 
-A solo, choice-driven daily expedition for Reddit’s Devvit Interactive Posts. Read two conflicting field notes, choose a traveler whose promise matters, and decide how to cross the marsh. There are no dice rolls: route outcomes are deterministic and follow from the scenario and the player’s choices.
+A solo daily expedition for Reddit’s Devvit Interactive Posts. Get a traveler to the bell tower while protecting the promise they carry. The map may be right, partly stale, or out of date; compare its survey with two field accounts, choose a route, and watch the crossing play out.
+
+## How to play
+
+1. Choose one traveler. Their promise is your goal: keep a moth asleep, deliver a letter, find an object, or protect someone from the weather.
+2. Compare the route claims with the field notes. The survey date is evidence, not a guarantee.
+3. Optionally spend your one scouting lantern to verify the route you have selected.
+4. Run the crossing. The traveler moves across the map; the simulation shows when the ground matches or contradicts the chart and whether the promise survives.
+5. Share the expedition report. You can replay with the other traveler to see a different tradeoff.
+
+There are no dice rolls. Each daily case has authored route conditions and outcomes, so the journey is deterministic and the clues explain what happened.
 
 ## Current prototype
 
-This first playable slice has seven authored daily cases, a date-based Pacific reset, two traveler goals per case, three route options, one lantern-powered map check, deterministic outcome badges, and a shareable result card. Map reliability is part of the puzzle: some routes are marked accurately, some marks are stale, and the survey date plus field notes give the player evidence. The lantern verifies one selected mark. Outcomes never use hidden dice rolls.
+The prototype has seven authored cases, a Pacific-time daily selector, two traveler goals per case, three routes, optional scouting, an animated crossing, clear arrival/promise outcomes, and a shareable result card. Some map marks are current and some are stale. The seven-case deck currently repeats weekly; expanding it is a major content milestone before submission.
 
-The content currently rotates through a compact seven-case deck; expanding and validating the scenario deck is part of the next content milestone.
-
-The map illustration is an inline SVG so it stays crisp at different sizes and needs no external art download. The interface is designed to work in a tall Reddit post view and on narrow mobile screens. Google Fonts are a visual enhancement; system fallbacks are defined for offline or restricted environments.
+The map is inline SVG. The layout supports a tall post and narrow mobile screens, with system font fallbacks and no external game server. The app does not request Reddit account data or save player history.
 
 ## Play locally
 
-Open `public/index.html` through any static file server. For example:
+From the repository root, run:
 
 ```sh
 python3 -m http.server 8000 --directory public
@@ -20,14 +28,12 @@ python3 -m http.server 8000 --directory public
 
 Then visit `http://localhost:8000`.
 
-## Devvit
+## Play on Reddit
 
-The app is configured as a Devvit Web custom post in `devvit.json`. Install and authenticate the Devvit CLI, then use `devvit playtest` to launch it in a test subreddit. It does not request Reddit account data, use an external game server, or save player history. The current daily case is selected locally from the Pacific calendar date; for an initial demo, everyone on the same date receives the same case and their choices determine their ending.
+The app is configured as a Devvit Web custom post in `devvit.json`. Install and authenticate the Devvit CLI, then run `npm run devvit:upload` and `npm run devvit:playtest` from the repository root. The playtest command opens the app in a Reddit test subreddit. The date selector refreshes when the Pacific calendar date changes; it does not publish a new post automatically.
 
-Before submitting to the hackathon, the next implementation steps are:
+## Hackathon submission checklist
 
-1. Expand the authored case library and check every traveler/route outcome for clarity and fairness.
-2. Playtest the post on Reddit mobile and desktop, then adjust map scale, text, and tap targets.
-3. Add a concise root-level game guide and a public demo post in a test subreddit as required by the event.
+The official challenge requires a game built on Devvit using Interactive Posts. A submission also needs a project description, an app listing link created after upload, a link to a running game post in a public subreddit (or the specified admin-access setup), and a root README explaining the game. The demo video is optional; if included, it must be under one minute and show the game running on its target device.
 
-The daily reset is a deterministic date selector, not a scheduled post publisher. It refreshes when the date changes in Pacific time. No hidden randomness or AI-generated scenario text is used.
+Judging gives equal weight to Delightful UX, Polish, Reddity/community fit, and Daily Content. The current prototype still needs a much larger authored case library and playtesting on Reddit before it is ready to submit. Official rules: https://redditgameofday2026.devpost.com/rules

@@ -1,8 +1,14 @@
 const routes = [
-  { id: "causeway", label: "Raised Causeway", mapName: "CAUSEWAY", mapClaim: "INK: DRY · QUICK", traits: { quiet: 0, quick: 2, shelter: 0, discovery: 0 } },
-  { id: "reeds", label: "Through the Reeds", mapName: "REED BEDS", mapClaim: "INK: QUIET · SLOW", traits: { quiet: 2, quick: 0, shelter: 1, discovery: 0 } },
-  { id: "boardwalk", label: "Old Boardwalk", mapName: "OLD WALK", mapClaim: "INK: SHELTER · UNKNOWN", traits: { quiet: 1, quick: 1, shelter: 2, discovery: 1 } },
+  { id: "causeway", label: "Raised Causeway", mapName: "CAUSEWAY", mapClaim: "DRY · QUICK", traits: { quiet: 0, quick: 2, shelter: 0, discovery: 0 } },
+  { id: "reeds", label: "Through the Reeds", mapName: "REED BEDS", mapClaim: "QUIET · SLOW", traits: { quiet: 2, quick: 0, shelter: 1, discovery: 0 } },
+  { id: "boardwalk", label: "Old Boardwalk", mapName: "OLD WALK", mapClaim: "SHELTERED", traits: { quiet: 1, quick: 1, shelter: 2, discovery: 1 } },
 ];
+
+const routePaths = {
+  causeway: [[87, 371], [211, 279], [330, 216], [441, 174], [553, 115], [676, 70]],
+  reeds: [[87, 371], [173, 284], [270, 279], [350, 216], [450, 208], [529, 145], [633, 132], [676, 70]],
+  boardwalk: [[87, 371], [172, 393], [263, 345], [356, 370], [435, 322], [525, 336], [617, 280], [676, 70]],
+};
 
 // Curated daily cases. The date picks a known, authored case; it never rolls a
 // result. Each case changes the clue logic, traveler promises, and route costs.
@@ -86,7 +92,7 @@ const mapReports = [
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
-const state = { traveler: null, route: null, inspected: false, inspectedRoute: null, caseIndex: 0, dayKey: "", scenario: null };
+const state = { traveler: null, route: null, inspected: false, inspectedRoute: null, running: false, caseIndex: 0, dayKey: "", scenario: null };
 
 function pacificDateParts(date = new Date()) {
   const parts = new Intl.DateTimeFormat("en-US", { timeZone: "America/Los_Angeles", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(date);
@@ -126,9 +132,14 @@ function loadDailyCase() {
   });
   $$(".route-card").forEach((card) => {
     const route = routes.find((item) => item.id === card.dataset.route);
-    card.querySelector("small").textContent = route.mapClaim;
+    card.querySelector("small").textContent = `MAP CLAIM: ${route.mapClaim}`;
   });
-  $("#inspect-message").textContent = "Choose a route, then spend your lantern to check its mark.";
+  $("#inspect-message").textContent = "Optional: scout once to learn whether your chosen map mark is current.";
+  $("#journey-state").textContent = "READY";
+  $("#journey-message").textContent = "Choose a traveler and route. Run the crossing to watch what happens.";
+  $("#journey-progress").style.width = "0%";
+  $("#traveler-token").setAttribute("transform", "translate(87 371)");
+  $("#traveler-token").classList.remove("is-visible");
   updateButtons();
 }
 
@@ -136,13 +147,15 @@ function selectedTraveler() { return state.scenario.travelers.find((traveler) =>
 function selectedRoute() { return routes.find((route) => route.id === state.route); }
 
 function updateButtons() {
-  $("#choose-button").disabled = !(state.traveler && state.route);
-  $("#turn-note").textContent = state.route && state.traveler ? "Your route is marked. Set out when you’re ready." : "Choose a traveler and a route to begin.";
-  $("#inspect-button").disabled = state.inspected || !state.route;
-  $("#oil-value").textContent = state.inspected ? "EMPTY" : "1 FLASK";
+  $("#choose-button").disabled = !(state.traveler && state.route) || state.running;
+  $("#choose-button span:first-child").textContent = state.running ? "CROSSING..." : "RUN THE CROSSING";
+  $("#turn-note").textContent = state.route && state.traveler ? "The crossing is deterministic. Your choices decide the outcome." : "Choose one traveler and one route to run the simulation.";
+  $("#inspect-button").disabled = state.running || state.inspected || !state.route;
+  $("#oil-value").textContent = state.inspected ? "USED" : "READY";
 }
 
 function selectTraveler(id) {
+  if (state.running) return;
   state.traveler = id;
   $$(".traveler-card").forEach((card) => {
     const selected = card.dataset.traveler === id;
@@ -153,6 +166,7 @@ function selectTraveler(id) {
 }
 
 function selectRoute(id) {
+  if (state.running) return;
   if (!routes.some((route) => route.id === id)) return;
   state.route = id;
   $$(".route-card").forEach((card) => {
@@ -161,6 +175,15 @@ function selectRoute(id) {
     card.setAttribute("aria-pressed", String(selected));
   });
   $$(".map-node.selectable").forEach((node) => node.classList.toggle("is-selected", node.dataset.route === id));
+  $$(".map-route").forEach((line) => {
+    const selected = line.classList.contains(`route-${id}`);
+    line.classList.toggle("is-selected", selected);
+    line.classList.toggle("is-muted", !selected);
+  });
+  if (state.inspected) {
+    const checked = routes.find((route) => route.id === state.inspectedRoute);
+    $("#inspect-message").textContent = `Lantern spent on ${checked.label}: ${mapReports[state.caseIndex].checks[state.inspectedRoute]}`;
+  }
   updateButtons();
 }
 
@@ -168,18 +191,22 @@ function inspectClue() {
   if (state.inspected || !state.route) return;
   state.inspected = true;
   state.inspectedRoute = state.route;
-  $("#inspect-message").textContent = mapReports[state.caseIndex].checks[state.route];
+  $("#inspect-message").textContent = `SCOUT REPORT: ${mapReports[state.caseIndex].checks[state.route]}`;
   $("#inspect-message").classList.add("is-clue");
-  $("#inspect-button").textContent = "MARK VERIFIED";
+  $("#inspect-button").textContent = "SCOUTED";
   updateButtons();
 }
 
-function resolveExpedition() {
+function evaluateExpedition() {
   const traveler = selectedTraveler();
   const route = selectedRoute();
   const cost = state.scenario.routeCost[route.id];
+  const markWasTrue = mapReports[state.caseIndex].truth[route.id];
   const traits = { ...route.traits };
-  if (!mapReports[state.caseIndex].truth[route.id]) {
+  let hazard = cost.hazard;
+  if (!markWasTrue) {
+    hazard = Math.min(2, hazard + 1);
+    if (route.id === "causeway") traits.quick = 0;
     if (route.id === "reeds") traits.quiet = 0;
     if (route.id === "boardwalk") traits.shelter = 0;
   }
@@ -187,26 +214,86 @@ function resolveExpedition() {
     : traveler.need === "quick" ? traits.quick >= 1
       : traveler.need === "shelter" ? traits.shelter >= 1
         : cost.secret || traits.discovery > 0;
-  const arrived = cost.hazard < 2;
+  const arrived = hazard < 2;
   const found = cost.secret || (state.inspected && route.id === state.inspectedRoute);
   const keptPromise = needMet && arrived;
   const story = makeStory({ traveler, route, arrived, keptPromise, found, inspected: state.inspected });
+  return { traveler, route, cost, markWasTrue, traits, arrived, keptPromise, found, story };
+}
+
+function animateTraveler(point, duration = 440) {
+  const token = $("#traveler-token");
+  token.setAttribute("transform", `translate(${point[0]} ${point[1]})`);
+  return new Promise((resolve) => window.setTimeout(resolve, duration));
+}
+
+async function resolveExpedition() {
+  if (state.running || !state.traveler || !state.route) return;
+  state.running = true;
+  updateButtons();
+  const outcome = evaluateExpedition();
+  const { traveler, route, cost, markWasTrue, arrived, keptPromise, found, story } = outcome;
+  const report = mapReports[state.caseIndex];
+  const token = $("#traveler-token");
+  const points = routePaths[route.id];
+  token.setAttribute("transform", `translate(${points[0][0]} ${points[0][1]})`);
+  token.classList.add("is-visible");
+  $(".map-panel").classList.add("is-simulating");
+  $("#journey-state").textContent = "SETTING OUT";
+  $("#journey-progress").style.width = "8%";
+  $("#journey-message").textContent = `${traveler.name} leaves the bank by ${route.label}. The map claims: ${route.mapClaim.toLowerCase()}.`;
+  await animateTraveler(points[1]);
+  $("#journey-state").textContent = "CROSSING";
+  $("#journey-progress").style.width = "38%";
+  $("#journey-message").textContent = markWasTrue
+    ? "The ground matches the map at the first marker. The route is holding."
+    : report.checks[route.id];
+  await animateTraveler(points[Math.floor(points.length * 0.55)]);
+  $("#journey-state").textContent = markWasTrue ? "ROUTE HOLDS" : "MAP WAS STALE";
+  $("#journey-progress").style.width = "68%";
+  $("#journey-message").textContent = markWasTrue
+    ? `${report.checks[route.id]} ${traveler.name} continues toward the tower.`
+    : `${traveler.name} adjusts to the changed ground and loses time.`;
+
+  if (arrived) {
+    await animateTraveler(points[points.length - 2]);
+    $("#journey-progress").style.width = "88%";
+    $("#journey-message").textContent = keptPromise
+      ? `${traveler.name} reaches the tower and keeps their promise.`
+      : `${traveler.name} reaches the tower, but the promise is at risk.`;
+    await animateTraveler(points[points.length - 1]);
+  } else {
+    await animateTraveler(points[Math.floor(points.length * 0.72)]);
+    $("#journey-progress").style.width = "68%";
+    $("#journey-message").textContent = "The route gives way. The traveler turns back before reaching the tower.";
+    await animateTraveler(points[0], 520);
+  }
+  $(".map-panel").classList.remove("is-simulating");
+  $("#journey-state").textContent = arrived ? "ARRIVED" : "TURNED BACK";
+  $("#journey-progress").style.width = arrived ? "100%" : "0%";
+  $("#journey-message").textContent = arrived
+    ? (keptPromise ? "Crossing complete · tower reached · promise kept." : "Crossing complete · tower reached · promise not kept.")
+    : "Crossing complete · traveler safe · tower not reached.";
+  state.running = false;
+  showExpeditionReport({ ...outcome, story });
+}
+
+function showExpeditionReport({ traveler, route, markWasTrue, arrived, keptPromise, found, story }) {
   const seals = [
-    { label: "REACHED THE TOWER", earned: arrived },
-    { label: "KEPT THE PROMISE", earned: keptPromise },
-    { label: "FOUND A TRACE", earned: found },
+    { label: "Tower reached", earned: arrived },
+    { label: "Promise kept", earned: keptPromise },
+    { label: "Extra clue found", earned: found },
   ];
-  $("#result-title").textContent = arrived ? (keptPromise ? "A way through" : "The marsh keeps a price") : "The marsh turns you back";
+  $("#result-title").textContent = arrived ? (keptPromise ? "A safe crossing" : "A costly crossing") : "The traveler turned back";
   $("#result-story").textContent = story;
-  $("#result-route").textContent = `${traveler.name.toUpperCase()}  →  ${route.label.toUpperCase()}  →  ${arrived ? "THE FAR BANK" : "TURNED BACK"}`;
+  $("#result-route").textContent = `${traveler.name} · ${route.label} · ${arrived ? "Reached the tower" : "Returned to the bank"}`;
   $("#result-seals").replaceChildren(...seals.map(({ label, earned }) => {
     const badge = document.createElement("span");
     badge.className = `seal${earned ? "" : " missed"}`;
     badge.textContent = `${earned ? "✓" : "—"} ${label}`;
     return badge;
   }));
-  const markWasTrue = mapReports[state.caseIndex].truth[route.id];
-  $("#result-footnote").textContent = `THE MAP WAS ${markWasTrue ? "RIGHT" : "STALE"} ABOUT THIS ROUTE · ${mapReports[state.caseIndex].survey}${state.inspected ? " · LANTERN OIL SPENT" : ""}`;
+  $("#result-footnote").textContent = `The map was ${markWasTrue ? "right" : "stale"} about this route · ${mapReports[state.caseIndex].survey}${state.inspected ? " · Scouted before setting out" : ""}`;
   const result = { day: state.dayKey, traveler: traveler.name, route: route.label, seals: seals.filter((seal) => seal.earned).map((seal) => seal.label), ending: $("#result-title").textContent };
   $("#copy-result").dataset.share = `THE UNRELIABLE MAP · ${result.day}\n${result.traveler} took ${result.route}.\n${result.seals.length ? result.seals.join(" · ") : "The marsh sent them back."}\nEnding: ${result.ending}`;
   $("#result-dialog").showModal();
@@ -232,12 +319,20 @@ function resetForOtherTraveler() {
   state.route = null;
   state.inspected = false;
   state.inspectedRoute = null;
+  state.running = false;
+  $(".map-panel").classList.remove("is-simulating");
+  $("#traveler-token").classList.remove("is-visible");
+  $("#traveler-token").setAttribute("transform", "translate(87 371)");
   $$(".traveler-card").forEach((card) => { card.classList.remove("selected"); card.setAttribute("aria-pressed", "false"); });
   $$(".route-card").forEach((card) => { card.classList.remove("selected"); card.setAttribute("aria-pressed", "false"); });
   $$(".map-node.selectable").forEach((node) => node.classList.remove("is-selected"));
-  $("#inspect-message").textContent = "Choose a route, then spend your lantern to check its mark.";
+  $$(".map-route").forEach((line) => line.classList.remove("is-selected", "is-muted"));
+  $("#inspect-message").textContent = "Optional: scout once to learn whether your chosen map mark is current.";
   $("#inspect-message").classList.remove("is-clue");
-  $("#inspect-button").textContent = "CHECK MAP MARK −1";
+  $("#journey-state").textContent = "READY";
+  $("#journey-message").textContent = "Choose a traveler and route. Run the crossing to watch what happens.";
+  $("#journey-progress").style.width = "0%";
+  $("#inspect-button").textContent = "SCOUT THIS ROUTE";
   updateButtons();
 }
 

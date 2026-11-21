@@ -53,6 +53,10 @@ h2 { margin: 4px 0 0; font: 600 23px/1.15 var(--serif); letter-spacing: -.025em;
 .map-wrap { position: relative; padding: 0 12px; }
 .marsh-map { width: 100%; height: auto; display: block; overflow: visible; border-radius: 6px; }
 .marsh-map > rect:first-of-type { fill: #d7c8a2; }
+.map-route { transition: opacity .2s ease, stroke-width .2s ease; }
+.map-route.is-muted { opacity: .15; }
+.map-route.is-selected { opacity: 1; stroke-width: 5; }
+.map-route.route-causeway.is-selected { stroke-width: 7; }
 .map-node circle:first-child { fill: #f0e6cf; stroke: #9a4a2b; stroke-width: 3; }
 .map-node .node-core { fill: #9a4a2b; }
 .map-node text, .tower text, .map-ornament text, .map-legend text { fill: #364846; font: 9px var(--mono); letter-spacing: .08em; }
@@ -63,6 +67,10 @@ h2 { margin: 4px 0 0; font: 600 23px/1.15 var(--serif); letter-spacing: -.025em;
 .map-node.selectable.is-selected .node-core { fill: #fff5de; }
 .map-node.selectable:focus { outline: none; }
 .map-node.selectable:focus circle:first-child { stroke: #1f3d3d; stroke-width: 5; }
+.traveler-token { opacity: 0; pointer-events: none; transition: transform .42s cubic-bezier(.2,.8,.2,1), opacity .2s ease; transform-box: view-box; }
+.traveler-token.is-visible { opacity: 1; }
+.traveler-token circle { fill: var(--orange); stroke: #332c20; stroke-width: 3; filter: url(#soft-shadow); }
+.traveler-token path { fill: #fff1d5; }
 .map-overlay { display: none; position: absolute; inset: 0 12px; place-items: center; border-radius: 6px; background: #19282aeb; color: var(--paper); font: 10px var(--mono); letter-spacing: .15em; }
 .map-overlay.is-visible { display: grid; }
 .map-footer { margin-top: auto; display: flex; justify-content: space-between; padding: 9px 20px 12px; color: #7a7c6c; font-size: 8px; }
@@ -113,6 +121,14 @@ h2 { margin: 4px 0 0; font: 600 23px/1.15 var(--serif); letter-spacing: -.025em;
 .inspect-button span { color: var(--orange); margin-left: 4px; }
 .inspect-message { min-height: 25px; margin: 6px 0 0; color: #98a49a; font-size: 10px; line-height: 1.45; }
 .inspect-message.is-clue { color: #e6c090; }
+.journey-panel { margin-top: 15px; padding: 12px 13px 11px; border: 1px solid #3b4c48; border-radius: 4px; background: #111e20; }
+.journey-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.journey-heading .eyebrow { color: #b8c2b5; }
+.journey-state { color: var(--orange); font: 8px var(--mono); letter-spacing: .08em; }
+.journey-progress { height: 4px; margin: 10px 0 8px; overflow: hidden; border-radius: 4px; background: #35433f; }
+.journey-progress span { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--orange); transition: width .4s ease; }
+.journey-message { min-height: 32px; margin: 0; color: #d8dece; font: 11px/1.45 var(--sans); }
+.map-panel.is-simulating { box-shadow: 0 0 0 2px #ef784177, 0 0 28px #ef784122; }
 .choose-button { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 49px; margin-top: auto; padding: 0 17px; border: 0; border-radius: 4px; background: var(--orange); color: #241f1a; font: 500 10px var(--mono); letter-spacing: .14em; cursor: pointer; transition: background .16s ease, transform .16s ease; }
 .choose-button:not(:disabled):hover { background: #ff9160; transform: translateY(-1px); }
 .choose-button:disabled { background: #384743; color: #839088; cursor: not-allowed; }

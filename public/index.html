@@ -24,7 +24,7 @@
         <div class="intro-copy">
           <p class="eyebrow"><span class="live-dot"></span> ONE MAP. YOUR CALL.</p>
           <h1>The Unreliable<br /><em>Map</em></h1>
-          <p class="deck">The marsh has two directions. The notes have three opinions. Get one traveler across before the light goes.</p>
+          <p class="deck">Get your traveler to the bell tower while keeping their promise. The map may be right, or its ink may be old.</p>
         </div>
         <div class="day-stamp" aria-label="Daily route number">
           <span>ROUTE</span><strong id="route-number">04</strong><span>MARSH DISTRICT</span>
@@ -59,14 +59,15 @@
                 <path d="M120 92l9-27 8 27h-5v17h-7V92zM148 98l8-24 8 24h-5v13h-6V98zM610 321l8-26 8 26h-5v17h-6v-17zM646 335l8-24 8 24h-5v13h-6v-13zM58 334l8-26 8 26h-5v14h-6v-14z"/>
                 <path d="M304 75l10-29 10 29h-6v18h-8V75zM349 91l8-24 9 24h-5v15h-7V91zM521 385l9-26 8 26h-5v15h-7v-15z"/>
               </g>
-              <path d="M87 371C144 343 173 309 211 279S289 233 330 216 405 204 441 174 508 131 553 115 625 91 676 70" fill="none" stroke="#9a4a2b" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 0" opacity=".74"/>
-              <path d="M87 371C144 343 173 309 211 279S289 233 330 216 405 204 441 174 508 131 553 115 625 91 676 70" fill="none" stroke="#f0e6cf" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 13"/>
-              <path d="M87 371C112 328 141 298 173 284 210 268 236 291 270 279 307 266 314 230 350 216 387 201 414 226 450 208 486 190 495 158 529 145 568 130 597 152 633 132 651 122 665 97 676 70" fill="none" stroke="#f0e6cf" stroke-width="3" stroke-linecap="round" stroke-dasharray="4 11" opacity=".9"/>
-              <path d="M87 371C105 402 141 408 172 393 210 375 225 345 263 345 301 345 320 378 356 370 390 363 396 328 435 322 469 316 492 346 525 336 561 325 579 293 617 280 642 271 663 279 676 70" fill="none" stroke="#f0e6cf" stroke-width="3" stroke-linecap="round" stroke-dasharray="4 11" opacity=".9"/>
+              <path class="map-route route-causeway" d="M87 371C144 343 173 309 211 279S289 233 330 216 405 204 441 174 508 131 553 115 625 91 676 70" fill="none" stroke="#9a4a2b" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 0" opacity=".74"/>
+              <path class="map-route route-causeway" d="M87 371C144 343 173 309 211 279S289 233 330 216 405 204 441 174 508 131 553 115 625 91 676 70" fill="none" stroke="#f0e6cf" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 13"/>
+              <path class="map-route route-reeds" d="M87 371C112 328 141 298 173 284 210 268 236 291 270 279 307 266 314 230 350 216 387 201 414 226 450 208 486 190 495 158 529 145 568 130 597 152 633 132 651 122 665 97 676 70" fill="none" stroke="#f0e6cf" stroke-width="3" stroke-linecap="round" stroke-dasharray="4 11" opacity=".9"/>
+              <path class="map-route route-boardwalk" d="M87 371C105 402 141 408 172 393 210 375 225 345 263 345 301 345 320 378 356 370 390 363 396 328 435 322 469 316 492 346 525 336 561 325 579 293 617 280 642 271 663 279 676 70" fill="none" stroke="#f0e6cf" stroke-width="3" stroke-linecap="round" stroke-dasharray="4 11" opacity=".9"/>
+              <g class="traveler-token" id="traveler-token" transform="translate(87 371)" aria-hidden="true"><circle r="14"/><path d="M0-8l2.5 5.5L8 0 2.5 2.5 0 8-2.5 2.5-8 0-2.5-2.5z"/></g>
               <g class="map-node" data-route="start" transform="translate(87 371)"><circle r="17"/><circle class="node-core" r="6"/><text x="-4" y="32">YOU</text></g>
               <g class="map-node selectable" data-route="causeway" tabindex="0" role="button" aria-label="Choose the raised causeway" transform="translate(330 216)"><circle r="18"/><circle class="node-core" r="6"/><text x="-42" y="-27">CAUSEWAY</text></g>
-              <g class="map-node selectable" data-route="reeds" tabindex="0" role="button" aria-label="Choose the reed beds" transform="translate(263 345)"><circle r="18"/><circle class="node-core" r="6"/><text x="-28" y="31">REED BEDS</text></g>
-              <g class="map-node selectable" data-route="boardwalk" tabindex="0" role="button" aria-label="Choose the old boardwalk" transform="translate(529 145)"><circle r="18"/><circle class="node-core" r="6"/><text x="-39" y="-27">OLD WALK</text></g>
+              <g class="map-node selectable" data-route="reeds" tabindex="0" role="button" aria-label="Choose the reed beds" transform="translate(529 145)"><circle r="18"/><circle class="node-core" r="6"/><text x="-28" y="31">REED BEDS</text></g>
+              <g class="map-node selectable" data-route="boardwalk" tabindex="0" role="button" aria-label="Choose the old boardwalk" transform="translate(525 336)"><circle r="18"/><circle class="node-core" r="6"/><text x="-39" y="31">OLD WALK</text></g>
               <g class="tower" transform="translate(676 70)" filter="url(#soft-shadow)"><circle r="22" fill="#d8c9a3" stroke="#34494a" stroke-width="2"/><path d="M-12 13V-3l12-12L12-3v16z" fill="#34494a"/><path d="M-5 13V2H5v11M-3-4h6v8h-6z" fill="#d8c9a3"/><path d="M0-17v-7m-6 7h12" stroke="#34494a" stroke-width="2"/><text x="-26" y="39">BELL TOWER</text></g>
               <g class="map-ornament" transform="translate(72 68)"><circle r="22" fill="none" stroke="#53645a"/><path d="M0-18L5 0 0 18-5 0zM-18 0L0-5 18 0 0 5z" fill="#53645a"/><text x="-4" y="-29">N</text></g>
               <text class="map-label" x="374" y="302" transform="rotate(-11 374 302)">BLACKWATER</text>
@@ -75,14 +76,14 @@
             </svg>
             <div class="map-overlay" id="map-overlay" aria-hidden="true"><span>SELECT A ROUTE BELOW</span></div>
           </div>
-          <div class="map-footer"><span><i class="north-mark">↑</i> FIELD SURVEY · 1897</span><span>THE INK IS STILL WET</span></div>
+          <div class="map-footer"><span><i class="north-mark">↑</i> FIELD SURVEY · 1897</span><span>SURVEY AGE IS A CLUE</span></div>
         </div>
 
         <aside class="side-panel">
           <section class="traveler-section">
-            <div class="section-top"><span class="eyebrow">YOUR TRAVELER</span><span class="choice-note">CHOOSE ONE</span></div>
+            <div class="section-top"><span class="eyebrow">01 · CHOOSE A TRAVELER</span><span class="choice-note">WHAT MUST THEY PROTECT?</span></div>
             <div class="traveler-options" role="group" aria-label="Choose your traveler">
-              <button class="traveler-card selected" data-traveler="mara" aria-pressed="true" type="button">
+              <button class="traveler-card" data-traveler="mara" aria-pressed="false" type="button">
                 <span class="traveler-icon moth-icon" aria-hidden="true">✳</span>
                 <span class="traveler-text"><strong>Mara Vale</strong><small>KEEP THE MOTH ASLEEP</small></span>
                 <span class="radio-mark" aria-hidden="true"></span>
@@ -96,25 +97,30 @@
           </section>
 
           <section class="notes-section">
-            <div class="section-top"><span class="eyebrow">FIELD NOTES</span><span class="note-count">2 ENTRIES</span></div>
-            <article class="note note-surveyor"><span class="note-index">01</span><div><strong>Surveyor’s mark</strong><p>“The bells mark the firmest ground.”</p></div><span class="note-stamp">1897</span></article>
-            <article class="note note-local"><span class="note-index">02</span><div><strong>From a ferryman</strong><p>“Never follow a bell after the sun leaves.”</p></div><span class="note-stamp">??</span></article>
-            <p class="notes-hint"><span aria-hidden="true">✳</span> The ink may be right. Check when it was surveyed.</p>
+            <div class="section-top"><span class="eyebrow">CLUES · TWO ACCOUNTS</span><span class="note-count">COMPARE THEM</span></div>
+            <article class="note note-surveyor"><span class="note-index">01</span><div><strong>Surveyor’s mark</strong><p>“The bells mark the firmest ground.”</p></div><span class="note-stamp">MAP</span></article>
+            <article class="note note-local"><span class="note-index">02</span><div><strong>From a ferryman</strong><p>“Never follow a bell after the sun leaves.”</p></div><span class="note-stamp">LOCAL</span></article>
+            <p class="notes-hint"><span aria-hidden="true">✳</span> Older notes can describe a route that has changed.</p>
           </section>
 
           <section class="route-section">
-            <div class="section-top"><span class="eyebrow">PICK YOUR WAY</span><span class="route-count">3 TRACKS</span></div>
+            <div class="section-top"><span class="eyebrow">02 · CHOOSE A ROUTE</span><span class="route-count">COMPARE THE CLAIMS</span></div>
             <div class="route-options" role="group" aria-label="Choose a route">
-              <button class="route-card" data-route="causeway" aria-pressed="false" type="button"><span class="route-number">A</span><span class="route-copy"><strong>Raised Causeway</strong><small>QUICK · EXPOSED</small></span><span class="route-arrow" aria-hidden="true">↗</span></button>
-              <button class="route-card" data-route="reeds" aria-pressed="false" type="button"><span class="route-number">B</span><span class="route-copy"><strong>Through the Reeds</strong><small>QUIET · SLOW</small></span><span class="route-arrow" aria-hidden="true">↗</span></button>
-              <button class="route-card" data-route="boardwalk" aria-pressed="false" type="button"><span class="route-number">C</span><span class="route-copy"><strong>Old Boardwalk</strong><small>UNKNOWN · SHELTERED</small></span><span class="route-arrow" aria-hidden="true">↗</span></button>
+              <button class="route-card" data-route="causeway" aria-pressed="false" type="button"><span class="route-number">A</span><span class="route-copy"><strong>Raised Causeway</strong><small>MAP CLAIM: DRY · QUICK</small></span><span class="route-arrow" aria-hidden="true">↗</span></button>
+              <button class="route-card" data-route="reeds" aria-pressed="false" type="button"><span class="route-number">B</span><span class="route-copy"><strong>Through the Reeds</strong><small>MAP CLAIM: QUIET · SLOW</small></span><span class="route-arrow" aria-hidden="true">↗</span></button>
+              <button class="route-card" data-route="boardwalk" aria-pressed="false" type="button"><span class="route-number">C</span><span class="route-copy"><strong>Old Boardwalk</strong><small>MAP CLAIM: SHELTERED</small></span><span class="route-arrow" aria-hidden="true">↗</span></button>
             </div>
-            <div class="resource-row"><span><span class="resource-icon">◉</span> LANTERN OIL</span><span class="resource-value" id="oil-value">1 FLASK</span><button id="inspect-button" class="inspect-button" type="button" disabled>CHECK MAP MARK <span>−1</span></button></div>
-            <p class="inspect-message" id="inspect-message" aria-live="polite">Choose a route, then spend your lantern to check its mark.</p>
+            <div class="resource-row"><span><span class="resource-icon">◉</span> SCOUTING LANTERN</span><span class="resource-value" id="oil-value">READY</span><button id="inspect-button" class="inspect-button" type="button" disabled>SCOUT THIS ROUTE</button></div>
+            <p class="inspect-message" id="inspect-message" aria-live="polite">Optional: scout once to learn whether your chosen map mark is current.</p>
           </section>
 
-          <button class="choose-button" id="choose-button" type="button" disabled><span>SET OUT</span><span aria-hidden="true">→</span></button>
-          <p class="turn-note" id="turn-note">Choose a traveler and a route to begin.</p>
+          <section class="journey-panel" aria-live="polite" aria-label="Crossing simulation">
+            <div class="journey-heading"><span class="eyebrow">03 · CROSSING SIMULATION</span><span class="journey-state" id="journey-state">READY</span></div>
+            <div class="journey-progress" aria-hidden="true"><span id="journey-progress"></span></div>
+            <p class="journey-message" id="journey-message">Choose a traveler and route. Run the crossing to watch what happens.</p>
+          </section>
+          <button class="choose-button" id="choose-button" type="button" disabled><span>RUN THE CROSSING</span><span aria-hidden="true">→</span></button>
+          <p class="turn-note" id="turn-note">One run per traveler. Outcomes follow the map, clues, and your choices.</p>
         </aside>
       </section>
 
@@ -136,7 +142,7 @@
     </dialog>
 
     <dialog class="help-dialog" id="help-dialog" aria-labelledby="help-title">
-      <div class="help-paper"><button class="close-dialog" id="close-help" type="button" aria-label="Close instructions">×</button><p class="eyebrow">FIELD GUIDE</p><h2 id="help-title">How to travel</h2><ol><li>Pick a traveler. Their promise changes what a good outcome means.</li><li>Read the field notes and the survey date. The map can be accurate, partly stale, or old enough to mislead.</li><li>Choose a route. Spend your one lantern flask to verify that route’s map mark before setting out.</li><li>Reach the tower. Your route and traveler determine the ending—there are several good ways through.</li></ol><p class="help-note">Today’s expedition is the same for everyone. There are no dice rolls: the outcome follows from your choices.</p></div>
+      <div class="help-paper"><button class="close-dialog" id="close-help" type="button" aria-label="Close instructions">×</button><p class="eyebrow">FIELD GUIDE</p><h2 id="help-title">Plan, then watch the crossing</h2><ol><li>Choose a traveler and read their promise. That is the goal you are trying to protect.</li><li>Compare the three route claims with the dated field notes. The map can be current or stale. You may scout one route to verify it.</li><li>Run the crossing. Watch the traveler move across the map, then see whether they reached the tower and kept their promise.</li></ol><p class="help-note">Everyone gets the same daily case. There are no dice rolls: the simulation is deterministic, so the route and clues explain the result.</p></div>
     </dialog>
   </body>
 </html>
