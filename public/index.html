@@ -1,221 +1,143 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#111d20" />
-    <meta name="description" content="A small daily expedition through places that do not agree with their maps." />
-    <title>The Unreliable Map — Daily Expedition</title>
-    <link rel="stylesheet" href="./style.css" />
-    <script defer src="./game.js"></script>
-  </head>
-  <body>
-    <main class="app-shell">
-      <header class="masthead">
-        <a class="wordmark" href="#top" aria-label="The Unreliable Map home">
-          <span class="wordmark-mark" aria-hidden="true">U/M</span>
-          <span>FIELD OFFICE <i>·</i> NO. 04</span>
-        </a>
-        <div class="edition" id="edition">DAILY EXPEDITION <span>·</span> <time id="today"></time></div>
-        <button class="quiet-button" id="how-button" type="button">HOW TO PLAY <span aria-hidden="true">↗</span></button>
-      </header>
-      <nav class="flow-progress" id="flow-progress" aria-label="Expedition steps" hidden>
-        <span data-flow="briefing">01 <b>Dispatch</b></span><i></i>
-        <span data-flow="plan">02 <b>Plan</b></span><i></i>
-        <span data-flow="crossing">03 <b>Crossing</b></span><i></i>
-        <span data-flow="report">04 <b>Report</b></span>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101b1d">
+  <meta name="description" content="One expedition every day. Read an unreliable map, make choices, and tell Reddit how your story ended.">
+  <title>The Unreliable Map — A Daily Story Expedition</title>
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./game.js"></script>
+</head>
+<body>
+  <div class="site">
+    <header class="topbar">
+      <div class="brand" aria-label="The Unreliable Map"><span class="brand-seal">U<span>/</span>M</span><span class="brand-name">THE CARTOGRAPHERS' OFFICE<small>THE UNRELIABLE MAP</small></span></div>
+      <div class="top-right"><span class="today-label">TODAY'S DISPATCH</span><time id="today-date"></time><button type="button" class="help-link" id="help-open">HOW TO PLAY <span aria-hidden="true">?</span></button></div>
+    </header>
+
+    <main>
+      <nav class="chapter-tracker" id="chapter-tracker" aria-label="Journey progress" hidden>
+        <span data-step="hero">01 <strong>Traveler</strong></span><i></i>
+        <span data-step="route">02 <strong>Route</strong></span><i></i>
+        <span data-step="encounter">03 <strong>Encounter</strong></span><i></i>
+        <span data-step="finale">04 <strong>Decision</strong></span><i></i>
+        <span data-step="report">05 <strong>Chronicle</strong></span>
       </nav>
 
-      <section class="screen title-screen is-active" id="screen-title">
-        <div class="intro" id="top">
-          <div class="intro-copy">
-            <p class="eyebrow"><span class="live-dot"></span> TODAY’S EXPEDITION · <time id="today-cover"></time></p>
-            <h1>The Unreliable<br /><em>Map</em></h1>
-            <p class="deck">A traveler, a promise, and a marsh that has changed since the map was drawn.</p>
+      <section id="screen-cover" class="screen is-active" aria-labelledby="game-title">
+        <div class="cover-grid">
+          <div class="cover-copy">
+            <div class="eyebrow"><span class="spark">✳</span> A NEW JOURNEY EACH DAY <span class="line"></span> EDITION <span id="dispatch-issue"></span></div>
+            <h1 id="game-title">The <em>Unreliable</em><br>Map<span class="period">.</span></h1>
+            <p class="standfirst">A small, strange adventure in a world where the roads change but the promises do not.</p>
+            <div class="cover-quest">
+              <div class="cover-emblem" id="cover-emblem" aria-hidden="true">✦</div>
+              <div><div class="label">TODAY'S TALE</div><h2 id="cover-title"></h2><p id="cover-intro"></p></div>
+            </div>
+            <button type="button" class="primary-button" id="start-button">OPEN THE DISPATCH <span aria-hidden="true">↗</span></button>
+            <div class="cover-meta"><span>5 MINUTES</span><span>NO DICE ROLLS</span><span>SAME WORLD FOR EVERYONE</span></div>
           </div>
-          <div class="day-stamp" aria-label="Daily route number">
-            <span>DISPATCH</span><strong id="route-number">04</strong><span>MARSH DISTRICT</span>
+          <div class="cover-art" aria-hidden="true">
+            <div class="art-halo halo-one"></div><div class="art-halo halo-two"></div>
+            <div class="art-sun">✳</div><div class="art-road"></div>
+            <div class="art-tower"><div class="tower-roof"></div><div class="tower-body"><div class="tower-window"></div></div></div>
+            <div class="art-trees"><span>♠</span><span>♠</span><span>♠</span><span>♠</span><span>♠</span></div>
+            <div class="art-card"><span>OFFICIAL SURVEY</span><b>DO NOT TRUST<br>EVERY LINE</b><small>THE CARTOGRAPHERS' OFFICE · 1897</small></div>
           </div>
         </div>
-        <div class="cover-card">
-          <p class="eyebrow">A THREE-MINUTE FIELD EXPEDITION</p>
-          <p>Choose who to protect, study the chart, then watch your route play out. The map is sometimes right.</p>
-          <button class="choose-button" id="begin-button" type="button"><span>OPEN TODAY’S DISPATCH</span><span aria-hidden="true">→</span></button>
-          <p class="cover-footnote">One daily case · two travelers · three routes · no dice rolls</p>
-        </div>
+        <div class="bottom-deck"><div><span class="eyebrow">THE PREMISE</span><p>Read the clues. Choose a dangerous route. Survive an encounter. Decide what matters more than getting home.</p></div><div><span class="eyebrow">YOUR STORY</span><p>Multiple paths and endings. Your first result is saved locally so you can compare it with other players.</p></div><div><span class="eyebrow">THE DAILY RITUAL</span><p>A shared adventure changes at midnight Pacific. Post your ending in the comments and compare choices.</p></div></div>
       </section>
 
-      <section class="screen briefing-screen" id="screen-briefing">
-        <div class="screen-heading">
-          <p class="eyebrow">STEP 1 · THE DISPATCH</p>
-          <h2 id="briefing-title">A message from the marsh</h2>
-          <p id="briefing-copy">The tower bell is due before dusk. Choose the traveler whose promise you will carry across.</p>
-        </div>
-        <section class="traveler-section">
-          <div class="section-top"><span class="eyebrow">WHO ARE YOU GETTING ACROSS?</span><span class="choice-note">CHOOSE ONE</span></div>
-          <div class="traveler-options" role="group" aria-label="Choose your traveler">
-            <button class="traveler-card" data-traveler="mara" aria-pressed="false" type="button">
-              <span class="traveler-icon moth-icon" aria-hidden="true">✳</span>
-              <span class="traveler-text"><strong>Mara Vale</strong><small>KEEP THE MOTH ASLEEP</small></span>
-              <span class="radio-mark" aria-hidden="true"></span>
-            </button>
-            <button class="traveler-card" data-traveler="oren" aria-pressed="false" type="button">
-              <span class="traveler-icon lantern-icon" aria-hidden="true">⌁</span>
-              <span class="traveler-text"><strong>Oren Pike</strong><small>DELIVER BEFORE DARK</small></span>
-              <span class="radio-mark" aria-hidden="true"></span>
-            </button>
-          </div>
-          <p class="traveler-explainer" id="traveler-explainer">Your traveler’s promise is the goal. The same route can help one traveler and fail another.</p>
-        </section>
-        <div class="screen-actions">
-          <button class="back-button" id="back-to-title" type="button">← Back to cover</button>
-          <button class="choose-button" id="to-plan-button" type="button" disabled><span>READ THE CHART</span><span aria-hidden="true">→</span></button>
-        </div>
+      <section id="screen-hero" class="screen" aria-labelledby="hero-title">
+        <div class="screen-kicker">DISPATCH 01 / CHOOSE YOUR ROLE</div>
+        <h2 id="hero-title" class="scene-title">Who carries the promise?</h2>
+        <p class="scene-description" id="hero-promise"></p>
+        <div class="role-grid" id="hero-options" role="group" aria-label="Choose an adventurer"></div>
+        <div class="actions"><button type="button" class="ghost-button" id="hero-back">← BACK</button><button type="button" class="primary-button" id="hero-next" disabled>READ THE MAP <span aria-hidden="true">→</span></button></div>
       </section>
 
-      <section class="screen plan-screen" id="screen-plan">
-        <div class="screen-heading compact-heading">
-          <p class="eyebrow">STEP 2 · READ THE CHART</p>
-          <h2>How will you cross?</h2>
-          <p>Compare the dated accounts. Pick a route, then decide whether to spend your lantern scouting it.</p>
-        </div>
-        <div class="game-layout" aria-label="Daily expedition route planning">
-          <div class="map-holder" id="plan-map">
+      <section id="screen-route" class="screen" aria-labelledby="route-title">
+        <div class="game-topline"><span class="screen-kicker">DISPATCH 02 / THE UNRELIABLE MAP</span><div class="hero-chip" id="hero-chip"></div></div>
+        <h2 id="route-title" class="scene-title"></h2>
+        <p class="scene-description" id="route-intro"></p>
+        <div class="status-strip" id="status-route"></div>
+        <div class="route-grid">
           <div class="map-panel">
-          <div class="panel-heading">
-            <div><span class="eyebrow">CHART 04-A</span><h2>The Bell Marsh</h2></div>
-            <span class="map-coordinates">41° 08′ N<br />72° 34′ W</span>
-          </div>
-          <div class="map-wrap">
-            <svg class="marsh-map" viewBox="0 0 760 470" role="img" aria-labelledby="map-title map-desc">
-              <title id="map-title">Map of the Bell Marsh</title>
-              <desc id="map-desc">Three routes cross a marsh toward a bell tower: the raised causeway, the reed beds, and the old boardwalk.</desc>
-              <defs>
-                <pattern id="paper-grain" width="18" height="18" patternUnits="userSpaceOnUse"><circle cx="2" cy="4" r=".7" fill="#6f6957" opacity=".16"/><circle cx="13" cy="12" r=".55" fill="#6f6957" opacity=".13"/></pattern>
-                <pattern id="water-lines" width="54" height="28" patternUnits="userSpaceOnUse"><path d="M2 8c8-4 18-4 26 0m10 13c6-3 12-3 18 0" fill="none" stroke="#365b5d" stroke-width="1" opacity=".32"/></pattern>
-                <filter id="soft-shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="3" stdDeviation="2" flood-color="#122126" flood-opacity=".28"/></filter>
-              </defs>
-              <rect width="760" height="470" rx="14" fill="#d8c9a3"/>
-              <rect width="760" height="470" rx="14" fill="url(#paper-grain)"/>
-              <path d="M0 256c72-25 93-8 148-35 63-31 79-5 131-34 47-27 82-16 116-39 55-37 93-14 134-46 55-42 103-13 144-53 36-35 65-21 87-36v261c-59 23-92 4-142 26-65 29-99 9-152 36-58 30-98 19-151 44-49 23-85 4-139 24-54 20-108 4-176 37z" fill="#91a39a" opacity=".72"/>
-              <path d="M-8 280c82-30 114-7 170-36 60-31 83-6 139-37 51-28 82-16 120-43 51-35 88-17 135-49 50-34 92-17 145-52 32-22 56-18 69-25" fill="none" stroke="#4c7777" stroke-width="22" opacity=".77"/>
-              <path d="M-8 280c82-30 114-7 170-36 60-31 83-6 139-37 51-28 82-16 120-43 51-35 88-17 135-49 50-34 92-17 145-52 32-22 56-18 69-25" fill="none" stroke="url(#water-lines)" stroke-width="20" opacity=".9"/>
-              <path d="M26 40c28 31 39 58 28 84-10 23-3 49 19 69m605 169c-19 30-17 48 10 68m-384-431c30 32 36 54 18 75" fill="none" stroke="#6d7c69" stroke-width="2" stroke-dasharray="2 8" opacity=".62"/>
-              <g fill="none" stroke="#52664f" stroke-width="2" opacity=".54">
-                <path d="M36 116c45-31 91-34 138-7 34 20 43 50 24 78-19 28-60 37-99 25-41-12-72 1-94 30"/><path d="M490 24c47 10 82 31 91 67 9 35-15 59-50 65-40 7-68 27-72 58-5 36 26 57 73 58 42 1 69 18 71 52"/><path d="M273 340c22-37 60-53 96-39 34 13 41 40 26 69-14 29-5 47 27 66"/>
-              </g>
-              <g fill="#4a634e" opacity=".78">
-                <path d="M120 92l9-27 8 27h-5v17h-7V92zM148 98l8-24 8 24h-5v13h-6V98zM610 321l8-26 8 26h-5v17h-6v-17zM646 335l8-24 8 24h-5v13h-6v-13zM58 334l8-26 8 26h-5v14h-6v-14z"/>
-                <path d="M304 75l10-29 10 29h-6v18h-8V75zM349 91l8-24 9 24h-5v15h-7V91zM521 385l9-26 8 26h-5v15h-7v-15z"/>
-              </g>
-              <path class="map-route route-causeway" d="M87 371C144 343 173 309 211 279S289 233 330 216 405 204 441 174 508 131 553 115 625 91 676 70" fill="none" stroke="#9a4a2b" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 0" opacity=".74"/>
-              <path class="map-route route-causeway" d="M87 371C144 343 173 309 211 279S289 233 330 216 405 204 441 174 508 131 553 115 625 91 676 70" fill="none" stroke="#f0e6cf" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 13"/>
-              <path class="map-route route-reeds" d="M87 371C112 328 141 298 173 284 210 268 236 291 270 279 307 266 314 230 350 216 387 201 414 226 450 208 486 190 495 158 529 145 568 130 597 152 633 132 651 122 665 97 676 70" fill="none" stroke="#f0e6cf" stroke-width="3" stroke-linecap="round" stroke-dasharray="4 11" opacity=".9"/>
-              <path class="map-route route-boardwalk" d="M87 371C105 402 141 408 172 393 210 375 225 345 263 345 301 345 320 378 356 370 390 363 396 328 435 322 469 316 492 346 525 336 561 325 579 293 617 280 642 271 663 279 676 70" fill="none" stroke="#f0e6cf" stroke-width="3" stroke-linecap="round" stroke-dasharray="4 11" opacity=".9"/>
-              <g class="traveler-token" id="traveler-token" transform="translate(87 371)" aria-hidden="true"><circle r="14"/><path d="M0-8l2.5 5.5L8 0 2.5 2.5 0 8-2.5 2.5-8 0-2.5-2.5z"/></g>
-              <g class="map-node" data-route="start" transform="translate(87 371)"><circle r="17"/><circle class="node-core" r="6"/><text x="-4" y="32">YOU</text></g>
-              <g class="map-node selectable" data-route="causeway" tabindex="0" role="button" aria-label="Choose the raised causeway" transform="translate(330 216)"><circle r="18"/><circle class="node-core" r="6"/><text x="-42" y="-27">CAUSEWAY</text></g>
-              <g class="map-node selectable" data-route="reeds" tabindex="0" role="button" aria-label="Choose the reed beds" transform="translate(529 145)"><circle r="18"/><circle class="node-core" r="6"/><text x="-28" y="31">REED BEDS</text></g>
-              <g class="map-node selectable" data-route="boardwalk" tabindex="0" role="button" aria-label="Choose the old boardwalk" transform="translate(525 336)"><circle r="18"/><circle class="node-core" r="6"/><text x="-39" y="31">OLD WALK</text></g>
-              <g class="tower" transform="translate(676 70)" filter="url(#soft-shadow)"><circle r="22" fill="#d8c9a3" stroke="#34494a" stroke-width="2"/><path d="M-12 13V-3l12-12L12-3v16z" fill="#34494a"/><path d="M-5 13V2H5v11M-3-4h6v8h-6z" fill="#d8c9a3"/><path d="M0-17v-7m-6 7h12" stroke="#34494a" stroke-width="2"/><text x="-26" y="39">BELL TOWER</text></g>
-              <g class="map-ornament" transform="translate(72 68)"><circle r="22" fill="none" stroke="#53645a"/><path d="M0-18L5 0 0 18-5 0zM-18 0L0-5 18 0 0 5z" fill="#53645a"/><text x="-4" y="-29">N</text></g>
-              <text class="map-label" x="374" y="302" transform="rotate(-11 374 302)">BLACKWATER</text>
-              <text class="map-label" x="166" y="164" transform="rotate(-19 166 164)">THE SINK</text>
-              <g class="map-legend" transform="translate(28 427)"><path d="M0 0h33" stroke="#9a4a2b" stroke-width="4"/><text x="41" y="4">MAP CLAIM</text><circle cx="158" cy="0" r="5" fill="#9a4a2b"/><text x="170" y="4">ROUTE CHOICE</text></g>
+            <div class="map-heading"><span class="label">FIELD SURVEY · MAP NOT TO SCALE</span><span id="map-edition"></span></div>
+            <svg id="scene-map" class="scene-map" viewBox="0 0 720 440" role="img" aria-labelledby="svg-title svg-description">
+              <title id="svg-title">Three paths through today's journey</title>
+              <desc id="svg-description">Select a route using the three labeled buttons beside the map.</desc>
+              <defs><pattern id="map-grain" width="30" height="30" patternUnits="userSpaceOnUse"><circle cx="4" cy="7" r="1" fill="#655d43" opacity=".15"/><circle cx="22" cy="22" r=".8" fill="#655d43" opacity=".17"/></pattern></defs>
+              <rect width="720" height="440" fill="#e7dcc0"/>
+              <rect width="720" height="440" fill="url(#map-grain)"/>
+              <path d="M0 227C90 155 134 254 247 186c123-75 142-43 240-103C577 26 652 58 720 18v340c-111 8-145-41-231 7-77 42-162-30-251 21-78 45-158-12-238 29z" fill="#a1b3a4" opacity=".45"/>
+              <path d="M0 247c137-50 186-8 265-65S444 137 529 98 657 69 720 51" stroke="#658f8d" stroke-width="23" fill="none" opacity=".4"/>
+              <g stroke="#566a5a" stroke-width="2" fill="none" opacity=".45"><path d="M30 128c61-28 112-17 132 32s-10 71-54 72"/><path d="M526 256c18-43 65-58 96-33s39 59 88 73"/><path d="M271 28c-20 45-2 77 40 88"/></g>
+              <path class="svg-route" data-line="0" d="M91 353C165 300 192 262 264 260S398 218 453 179 551 121 637 77" fill="none" stroke="#a65a3d" stroke-width="5" stroke-linecap="round" stroke-dasharray="10 8"/>
+              <path class="svg-route" data-line="1" d="M91 353C161 343 189 190 284 185S402 240 488 187 563 123 637 77" fill="none" stroke="#54746a" stroke-width="5" stroke-linecap="round" stroke-dasharray="10 8"/>
+              <path class="svg-route" data-line="2" d="M91 353C195 415 278 384 368 337S494 344 548 271 603 129 637 77" fill="none" stroke="#ad8a56" stroke-width="5" stroke-linecap="round" stroke-dasharray="10 8"/>
+              <circle cx="91" cy="353" r="16" fill="#2c4542" stroke="#fff7e4" stroke-width="5"/><circle cx="637" cy="77" r="20" fill="#e0a367" stroke="#fff7e4" stroke-width="6"/>
+              <g font-family="Georgia,serif" fill="#304943" font-size="16"><text x="59" y="396">YOU</text><text x="563" y="41">DESTINATION</text><text x="272" y="244">I</text><text x="296" y="167">II</text><text x="373" y="368">III</text></g>
+              <text x="44" y="68" fill="#546b60" font-family="Georgia,serif" font-size="42">✦</text><text x="46" y="90" fill="#546b60" font-size="10">N</text>
             </svg>
-            <div class="map-overlay" id="map-overlay" aria-hidden="true"><span>SELECT A ROUTE BELOW</span></div>
+            <div class="map-bottom"><span>THREE ROUTES · ONE PROMISE</span><span>ALL CLAIMS MAY BE OUTDATED</span></div>
+            <div class="field-notes"><div><span class="label">WITNESS ACCOUNT</span><p id="field-witness"></p></div><div><span class="label">THIS MORNING'S REPORT</span><p id="field-omen"></p></div></div>
           </div>
-          <div class="map-footer"><span><i class="north-mark">↑</i> FIELD SURVEY · 1897</span><span>SURVEY AGE IS A CLUE</span></div>
-        </div>
-
-          </div>
-          <aside class="side-panel">
-          <section class="notes-section">
-            <div class="section-top"><span class="eyebrow">CLUES · TWO ACCOUNTS</span><span class="note-count">COMPARE THEM</span></div>
-            <article class="note note-surveyor"><span class="note-index">01</span><div><strong>Surveyor’s mark</strong><p>“The bells mark the firmest ground.”</p></div><span class="note-stamp">MAP</span></article>
-            <article class="note note-local"><span class="note-index">02</span><div><strong>From a ferryman</strong><p>“Never follow a bell after the sun leaves.”</p></div><span class="note-stamp">LOCAL</span></article>
-            <p class="notes-hint"><span aria-hidden="true">✳</span> Older notes can describe a route that has changed.</p>
-          </section>
-
-          <section class="route-section">
-            <div class="section-top"><span class="eyebrow">02 · CHOOSE A ROUTE</span><span class="route-count">COMPARE THE CLAIMS</span></div>
-            <div class="route-options" role="group" aria-label="Choose a route">
-              <button class="route-card" data-route="causeway" aria-pressed="false" type="button"><span class="route-number">A</span><span class="route-copy"><strong>Raised Causeway</strong><small>MAP CLAIM: DRY · QUICK</small></span><span class="route-arrow" aria-hidden="true">↗</span></button>
-              <button class="route-card" data-route="reeds" aria-pressed="false" type="button"><span class="route-number">B</span><span class="route-copy"><strong>Through the Reeds</strong><small>MAP CLAIM: QUIET · SLOW</small></span><span class="route-arrow" aria-hidden="true">↗</span></button>
-              <button class="route-card" data-route="boardwalk" aria-pressed="false" type="button"><span class="route-number">C</span><span class="route-copy"><strong>Old Boardwalk</strong><small>MAP CLAIM: SHELTERED</small></span><span class="route-arrow" aria-hidden="true">↗</span></button>
-            </div>
-            <div class="resource-row"><span><span class="resource-icon">◉</span> SCOUTING LANTERN</span><span class="resource-value" id="oil-value">READY</span><button id="inspect-button" class="inspect-button" type="button" disabled>SCOUT THIS ROUTE</button></div>
-            <p class="inspect-message" id="inspect-message" aria-live="polite">Optional: scout once to learn whether your chosen map mark is current.</p>
-          </section>
-
-          <div class="plan-actions">
-            <button class="back-button" id="back-to-briefing" type="button">← Change traveler</button>
-            <button class="choose-button" id="choose-button" type="button" disabled><span>PREPARE CROSSING</span><span aria-hidden="true">→</span></button>
-          </div>
-          <p class="turn-note" id="turn-note">Choose one route. Outcomes follow the map, clues, and your traveler’s goal.</p>
-        </aside>
-        </div>
-      </section>
-
-      <section class="screen loading-screen" id="screen-loading" aria-live="polite">
-        <div class="loading-card">
-          <p class="eyebrow">DISPATCH ACCEPTED</p>
-          <h2>Preparing the crossing</h2>
-          <p id="loading-message">Folding the chart and checking the lantern...</p>
-          <div class="journey-progress loading-progress" aria-hidden="true"><span id="loading-progress"></span></div>
-          <div class="dispatch-summary"><span id="loading-traveler">TRAVELER</span><b>→</b><span id="loading-route">ROUTE</span></div>
-          <p class="loading-footnote">The marsh stays the same for everyone today. Your choices decide what happens.</p>
-        </div>
-      </section>
-
-      <section class="screen crossing-screen" id="screen-crossing">
-        <div class="screen-heading compact-heading">
-          <p class="eyebrow">STEP 3 · THE CROSSING</p>
-          <h2 id="crossing-title">The marsh in motion</h2>
-          <p>Watch the route. Each field note describes what the traveler meets.</p>
-        </div>
-        <div class="game-layout crossing-layout">
-          <div class="map-holder crossing-map" id="crossing-map"></div>
-          <aside class="side-panel crossing-log">
-            <div class="journey-panel" aria-live="polite" aria-label="Crossing simulation">
-              <div class="journey-heading"><span class="eyebrow">FIELD SIMULATION</span><span class="journey-state" id="journey-state">READY</span></div>
-              <div class="journey-progress" aria-hidden="true"><span id="journey-progress"></span></div>
-              <p class="journey-message" id="journey-message">Your traveler is preparing to leave the bank.</p>
-            </div>
-            <ol class="crossing-log-list" id="crossing-log-list" aria-label="Events during the crossing"></ol>
+          <aside class="route-sidebar">
+            <div class="sidebar-top"><span class="label">CHOOSE A PASSAGE</span><span class="side-note">THE CHART CAN LIE</span></div>
+            <div class="route-options" id="route-options" role="group" aria-label="Choose a route"></div>
+            <div class="scout-panel"><div><span class="label">YOUR ONE SCOUTING LANTERN</span><p id="scout-report">Inspect one selected route before committing. You may change routes afterward.</p></div><button type="button" id="scout-button" class="outline-button" disabled>SCOUT SELECTED ROUTE</button></div>
+            <button type="button" class="primary-button full" id="route-next" disabled>FOLLOW THIS PATH <span aria-hidden="true">→</span></button>
           </aside>
         </div>
-        <div class="screen-actions report-actions">
-          <span class="turn-note">The simulation uses today’s authored route conditions; no random roll is hidden.</span>
-          <button class="choose-button" id="report-button" type="button" disabled><span>OPEN FIELD REPORT</span><span aria-hidden="true">→</span></button>
-        </div>
       </section>
 
-      <section class="screen report-screen" id="screen-report">
-        <div class="screen-heading compact-heading">
-          <p class="eyebrow">STEP 4 · THE FIELD REPORT</p>
-          <h2>What the marsh remembers</h2>
-        </div>
-        <div class="result-paper">
-          <p class="eyebrow">EXPEDITION REPORT · <span id="report-date"></span></p>
-          <h2 id="result-title">A safe crossing</h2>
-          <p class="result-story" id="result-story"></p>
-          <div class="result-route" id="result-route"></div>
-          <div class="result-seals" id="result-seals"></div>
-          <p class="result-footnote" id="result-footnote"></p>
-          <button class="share-button" id="copy-result" type="button">COPY EXPEDITION CARD <span>↗</span></button>
-        </div>
-        <div class="screen-actions">
-          <button class="back-button" id="play-again" type="button">↺ Replay with the other traveler</button>
-          <button class="choose-button" id="return-cover" type="button"><span>RETURN TO TODAY’S DISPATCH</span><span aria-hidden="true">→</span></button>
-        </div>
+      <section id="screen-encounter" class="screen scene-screen" aria-labelledby="encounter-title">
+        <div class="screen-kicker">DISPATCH 03 / THE ROAD ANSWERS</div>
+        <div class="story-layout"><div class="story-illustration"><div class="story-mark" id="encounter-mark">✷</div><span id="encounter-location"></span></div><div class="story-card">
+          <div class="label" id="encounter-route"></div><h2 class="scene-title" id="encounter-title">Something moves in the distance.</h2>
+          <p class="story-prose" id="encounter-scene"></p>
+          <p class="story-context" id="encounter-context"></p>
+          <div class="status-strip" id="status-encounter"></div>
+          <div class="decision-heading"><span>WHAT DO YOU DO?</span><small>NO RANDOM ROLLS · CONSEQUENCES ARE SHOWN</small></div>
+          <div class="choice-options" id="encounter-options"></div>
+        </div></div>
       </section>
 
-      <footer class="site-footer"><span>THE CARTOGRAPHERS’ OFFICE</span><span>NO TWO MAPS AGREE <i>·</i> EST. SOMEWHERE</span><span class="footer-mark">U / M</span></footer>
+      <section id="screen-finale" class="screen scene-screen" aria-labelledby="finale-title">
+        <div class="screen-kicker">DISPATCH 04 / THE FINAL CHOICE</div>
+        <div class="story-layout"><div class="story-illustration finale-art"><div class="story-mark">◉</div><span>THE LAST MILE</span></div><div class="story-card">
+          <div class="label">THE CONSEQUENCE OF YOUR CHOICE</div><p class="previous-action" id="previous-action"></p>
+          <h2 class="scene-title" id="finale-title">One more decision.</h2>
+          <p class="story-prose" id="finale-scene"></p>
+          <div class="status-strip" id="status-finale"></div>
+          <div class="decision-heading"><span>HOW WILL YOU FINISH?</span><small>THERE IS NO PERFECT ANSWER</small></div>
+          <div class="choice-options" id="finale-options"></div>
+        </div></div>
+      </section>
+
+      <section id="screen-report" class="screen report-screen" aria-labelledby="report-title">
+        <div class="screen-kicker">THE CHRONICLE / TODAY'S ENDING</div>
+        <div class="report-paper">
+          <div class="report-top"><span>THE CARTOGRAPHERS' OFFICE</span><span id="report-day"></span></div>
+          <div class="report-emblem" id="report-emblem" aria-hidden="true">✳</div>
+          <p class="label" id="report-rank"></p>
+          <h2 id="report-title"></h2>
+          <p class="report-summary" id="report-summary"></p>
+          <p class="report-detail" id="report-detail"></p>
+          <div class="seals" id="report-seals"></div>
+          <div class="report-divider"></div>
+          <div class="report-path"><div class="label">HOW YOUR STORY UNFOLDED</div><ol id="report-path"></ol></div>
+          <div class="report-bottom"><span id="report-hero"></span><span id="report-score"></span></div>
+        </div>
+        <div class="after-report"><div><h3>Tell the other travelers.</h3><p>Everyone sees the same daily quest, but your ending depends on your decisions. Copy your chronicle into this Reddit post's comments and compare routes.</p><p id="first-run-note" class="first-note"></p></div><button type="button" class="primary-button" id="copy-button">COPY MY ENDING <span aria-hidden="true">↗</span></button></div>
+        <div class="actions"><button type="button" id="replay-button" class="ghost-button">↺ EXPLORE ANOTHER PATH</button><button type="button" id="cover-button" class="outline-button">RETURN TO COVER</button></div>
+      </section>
     </main>
-
-    <dialog class="help-dialog" id="help-dialog" aria-labelledby="help-title">
-      <div class="help-paper"><button class="close-dialog" id="close-help" type="button" aria-label="Close instructions">×</button><p class="eyebrow">FIELD GUIDE</p><h2 id="help-title">Follow the expedition</h2><ol><li>Open today’s dispatch, then choose the traveler whose promise matters to you.</li><li>Plan the crossing: compare three route claims with the dated field notes. Optionally scout one route.</li><li>Wait while the chart is prepared, then follow the traveler and field log across the map.</li><li>Open the report to see whether the traveler arrived, kept their promise, and found anything else.</li></ol><p class="help-note">Everyone gets the same daily case. There are no dice rolls: the simulation is deterministic, so the route and clues explain the result.</p></div>
-    </dialog>
-  </body>
+    <footer><span>THE UNRELIABLE MAP · AN ORIGINAL DAILY STORY GAME</span><span>YOUR CHOICES ARE STORED ONLY IN THIS BROWSER</span></footer>
+  </div>
+  <dialog id="help-dialog" aria-labelledby="help-title"><div class="help-sheet"><button class="close-help" id="help-close" type="button" aria-label="Close help">×</button><span class="label">FIELD GUIDE</span><h2 id="help-title">How to survive a map that lies</h2><p>Every day, everyone receives the same journey. Play as a Warden, Scribe, or Tinker, then choose one of three routes. The chart may be outdated; a witness and a fresh report help you decide.</p><p>You have one scouting lantern. Use it to check whether a chosen route is reliable. Then face an encounter and a final decision; each choice changes your Resolve, Supplies, Clues, or Promise.</p><p><strong>Keep Resolve above zero</strong> to reach the end. Gain <strong>3 Promise</strong> to complete your quest, or <strong>3 Clues</strong> to uncover a secret. There are no dice rolls and no AI-generated outcomes.</p><p>Your first result is saved locally. Replay to explore another branch, then share your outcome in the Reddit comments.</p><button type="button" class="primary-button" id="help-done">UNDERSTOOD <span aria-hidden="true">→</span></button></div></dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
 </html>

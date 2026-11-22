@@ -1,42 +1,62 @@
 # The Unreliable Map
 
-A solo daily expedition for Reddit’s Devvit Interactive Posts. Get a traveler to the bell tower while protecting the promise they carry. The map may be right, partly stale, or out of date; compare its survey with two field accounts, choose a route, and watch the crossing play out.
+**An original branching daily fantasy expedition for Reddit Interactive Posts.**
 
-## How to play
+Everyone gets the same quest on a given Pacific calendar day. You choose a role and a route through a map that may be partly outdated; a witness, a daily field report and one scouting lantern help you decide. Along the road, an encounter and a final dilemma change your Resolve, Clues and Promise. Your decisions determine whether you arrive, keep your oath or uncover a secret. The ending card can be copied into the Reddit post's comments to compare outcomes.
 
-1. **Cover:** open today’s dispatch.
-2. **Dispatch:** choose a traveler. Their promise is your goal: keep a moth asleep, deliver a letter, find an object, or protect someone from the weather.
-3. **Planning:** compare the route claims with the field notes. The survey date is evidence, not a guarantee. Optionally spend your one scouting lantern to verify the selected route.
-4. **Preparation:** the game confirms the traveler and route before the crossing begins.
-5. **Crossing:** follow the traveler on the map. A field log explains when the ground matches or contradicts the chart and whether the promise survives.
-6. **Report:** read and share the outcome. Replay with the other traveler to see a different tradeoff.
+## How the game actually plays
 
-The screens are sequential: each action unlocks the next stage, and the report is available only after the crossing simulation finishes.
+1. **Cover:** Preview the current episode and its central promise.
+2. **Traveler:** Choose Warden (more Resolve), Scribe (a head start on Clues), or Tinker (extra Supplies).
+3. **Map:** Compare three route claims with a witness account and a daily omen. Optionally scout one route. Maps are **not always wrong**.
+4. **Encounter:** Your chosen route adds a cost and can yield clues. Pick one of two authored responses; each displays its mechanical effects.
+5. **Final decision:** Choose how to settle the quest. Resolve must remain above zero to reach the destination; 3 Promise completes your oath, and 3 Clues reveals the hidden truth.
+6. **Chronicle:** See an ending and the story choices that caused it, then copy the compact result to Reddit comments or replay another branch.
 
-There are no dice rolls. Each daily case has authored route conditions and outcomes, so the journey is deterministic and the clues explain what happened.
+This is a **deterministic game**, not a generative text chatbot. The story choices, encounters and outcomes are authored and designed to be legible without hidden dice rolls. Results are not controlled by votes. The same choices on the same day give the same result.
 
-## Current prototype
+## Daily content and replayability
 
-The prototype has seven authored cases, a Pacific-time daily selector, two traveler goals per case, three routes, optional scouting, an animated crossing, clear arrival/promise outcomes, and a shareable result card. Some map marks are current and some are stale. The seven-case deck currently repeats weekly; expanding it is a major content milestone before submission.
+- 12 authored settings with their own introductions, witness accounts, paths, encounters and final dilemmas.
+- 7 rotating conditions (omens) change route reliability. These combine into **84 different chapter/omen pairings** before repeating. This is **not 84 wholly original scripts**: each quest repeats with different conditions.
+- 3 roles × 3 routes × 2 encounter responses × 2 final choices = **36 paths per daily pairing**, with outcomes influenced by role, route reliability, and accumulated resources.
+- The chapter changes at **midnight America/Los_Angeles** and rechecks while open; a previous day's in-progress run is not migrated to the new day.
+- Progress and the day's first ending are saved in browser storage if available. There is no Reddit account storage, cross-device sync, public leaderboard or automatic new-post scheduler.
 
-The map is inline SVG. The layout supports a tall post and narrow mobile screens, with system font fallbacks and no external game server. The app does not request Reddit account data or save player history.
+### Limits and next creative milestones
 
-## Play locally
+Currently the journeys have one common structure (route → encounter → finale). The writing and mechanics differ, and branches affect scores, fate and chronicle, but this is not an open-ended tabletop roleplaying engine or a procedural infinite-world simulator. Further polish should prioritize **mid-journey branching scenes**, unlockable secrets, richer chapter-specific puzzles, and player research/playtests before claiming fully unique stories every day.
 
-From the repository root, run:
+## Run in a regular browser
+
+Node 24+ is used for the Devvit toolchain. For the standalone game:
 
 ```sh
 python3 -m http.server 8000 --directory public
 ```
 
-Then visit `http://localhost:8000`.
+Visit `http://localhost:8000/index.html` to play the full game locally. The inline Reddit splash page requires a Devvit bundle and will not work from a plain Python server until built.
 
-## Play on Reddit
+## Build, test and playtest on Reddit
 
-The app is configured as a Devvit Web custom post in `devvit.json`. Install and authenticate the Devvit CLI, then run `npm run devvit:upload` and `npm run devvit:playtest` from the repository root. The playtest command opens the app in a Reddit test subreddit. The date selector refreshes when the Pacific calendar date changes; it does not publish a new post automatically.
+```sh
+npm install
+npm run check
+npm run devvit:playtest
+```
 
-## Hackathon submission checklist
+The build bundles the Reddit client splash into `public/splash.js` and the Devvit Web server as CommonJS in `dist/server/index.js`. `devvit.json` declares `splash.html` as the compact inline preview and `index.html` as the expanded game; the opening button calls `requestExpandedMode` directly from a click.
 
-The official challenge requires a game built on Devvit using Interactive Posts. A submission also needs a project description, an app listing link created after upload, a link to a running game post in a public subreddit (or the specified admin-access setup), and a root README explaining the game. The demo video is optional; if included, it must be under one minute and show the game running on its target device.
+Use the **Create today's Unreliable Map game** moderator subreddit action to create a game post once the app is installed. Alternatively use the Devvit CLI and Reddit developer tools to create a custom post. **The game does not schedule or automatically publish daily posts**. One existing game post will show the current Pacific day's quest whenever opened.
 
-Judging gives equal weight to Delightful UX, Polish, Reddity/community fit, and Daily Content. The current prototype still needs a much larger authored case library and playtesting on Reddit before it is ready to submit. Official rules: https://redditgameofday2026.devpost.com/rules
+For upload and release, follow the current official [Devvit development docs](https://developers.reddit.com/docs/capabilities/devvit-web/devvit_web_overview). Before hackathon submission, run an actual on-Reddit desktop and mobile playtest, upload, set up the app listing, and submit a working public game-post link. Neither GitHub source inspection nor passing unit tests proves the packaged app operates on Reddit.
+
+## Testing
+
+`npm test` covers the 12 episode definitions, Pacific date boundaries, 84 unique rotations, 3,024 deterministic playthrough combinations, alternate branches, illegal actions, and UI element IDs. `npm run check` also checks JS syntax and bundles the Devvit client/server with esbuild. GitHub Actions runs these checks on new commits and pull requests.
+
+## Hackathon
+
+[Reddit Game of the Day Hackathon](https://redditgameofday2026.devpost.com/rules). Judges evaluate **Delightful UX**, **Polish**, **Reddity/community fit**, and **Daily Content**. The design aims to be a short daily challenge with clear shareable variation, not a generic collaborative writing prompt.
+
+The README and GitHub repository provide the source, but do not replace the required app listing or a live public Reddit game post. A demo is optional; check official rules for the current submission specifics.

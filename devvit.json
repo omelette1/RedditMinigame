@@ -5,9 +5,31 @@
     "dir": "public",
     "entrypoints": {
       "default": {
+        "entry": "splash.html",
+        "height": "tall"
+      },
+      "game": {
         "entry": "index.html",
         "height": "tall"
       }
     }
+  },
+  "server": {
+    "dir": "dist/server",
+    "entry": "index.js"
+  },
+  "menu": {
+    "items": [
+      {
+        "label": "Create today's Unreliable Map game",
+        "description": "Post a playable daily fantasy quest",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/on/menu/new-post"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "npm run build"
   }
 }

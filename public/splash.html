@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101b1d">
+<title>The Unreliable Map — Enter today's quest</title>
+<style>
+:root{color-scheme:dark;font-family:Georgia,serif;color:#efe5c9;background:#101b1d}
+*{box-sizing:border-box}
+body{margin:0;min-width:280px;background:radial-gradient(ellipse at 50% 5%,#324d47,#101b1d 73%)}
+main{height:100vh;min-height:300px;max-height:512px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;text-align:center;padding:23px 19px}
+.ribbon{font:10px ui-monospace,monospace;letter-spacing:.1em;color:#e1b483}
+.symbol{font:50px Georgia,serif;color:#dfad6a;height:55px}
+h1{font:400 clamp(32px,7vw,46px)/1.06 Georgia,serif;margin:2px 0 4px;letter-spacing:-.05em}
+h1 em{color:#d7a264;font-weight:400}
+.quest{font:16px/1.2 Georgia,serif;margin:0}
+.detail{font:12px/1.4 system-ui,sans-serif;color:#c1cbbb;max-width:420px;margin:0}
+button{border:1px solid #e4a274;border-radius:4px;color:#152725;background:#ee9360;cursor:pointer;padding:15px 22px;min-height:48px;min-width:min(280px,100%);font:700 12px ui-monospace,monospace;letter-spacing:.07em}
+button:focus-visible{outline:3px solid white;outline-offset:3px}
+button:hover{background:#ffb47e}
+aside{color:#9db2a4;font:10px ui-monospace,monospace}
+#launch-error{font:12px system-ui,sans-serif;color:#ffbb98}
+@media(max-height:400px){main{gap:7px;padding:12px}.symbol{display:none}h1{font-size:29px}.detail{display:none}}
+</style>
+<script type="module" src="./splash.js"></script>
+</head>
+<body>
+<main>
+  <div class="ribbon">A NEW EXPEDITION EVERY DAY · <span id="day-label">TODAY</span></div>
+  <div class="symbol" id="quest-icon" aria-hidden="true">✧</div>
+  <h1>The <em>Unreliable</em> Map</h1>
+  <p class="quest" id="quest-name">Today's journey awaits.</p>
+  <p class="detail" id="quest-detail">Read the chart. Choose a path. Decide whose promise survives.</p>
+  <button type="button" id="launch">ENTER TODAY'S STORY ↗</button>
+  <aside>5 MINUTES · THREE ROUTES · DIFFERENT ENDINGS</aside>
+  <p id="launch-error" role="status" hidden></p>
+</main>
+</body>
+</html>
