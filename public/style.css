@@ -224,3 +224,34 @@ dialog::backdrop{background:#071213d9}
   #today-date{font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}}
+
+/* Account-linked progress, archive, and destructive-action styles */
+.account-sync,.account-result{font:11px/1.6 var(--mono);color:#b9dbc1;letter-spacing:.035em}
+.account-sync{margin:0 0 13px}.account-result{text-align:center;margin:24px auto 6px}
+.history-screen{max-width:1000px;margin:0 auto}
+.history-heading{display:flex;align-items:start;justify-content:space-between;gap:25px}
+.history-heading .scene-description{margin-top:14px;max-width:700px}
+.history-total{min-width:150px;padding:18px 20px;border:1px solid var(--edge);border-radius:5px;text-align:center;display:flex;align-items:center;flex-direction:column;gap:8px}
+.history-total strong{font:48px var(--serif);color:var(--gold)}
+.history-total span{font:10px/1.6 var(--mono);letter-spacing:.08em}
+.history-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:26px}
+.history-entry{border:1px solid var(--edge);background:linear-gradient(145deg,#263a38,#19292b);border-radius:5px;padding:19px}
+.history-entry-top{display:flex;justify-content:space-between;gap:10px}
+.history-score{color:var(--gold);font:11px var(--mono)}
+.history-entry h3{font:400 25px var(--serif);margin:13px 0 4px}
+.history-entry p{font:16px var(--serif);margin:0 0 14px}
+.history-entry small{font:11px/1.5 var(--mono);color:var(--muted)}
+.history-empty{color:var(--muted);font:16px/1.6 var(--serif)}
+.history-controls{display:flex;align-items:center;justify-content:space-between;gap:15px;margin:28px 0}
+.delete-button{padding:12px 16px;border:1px solid #b56b5a;color:#ffb1a1;background:transparent;border-radius:4px;min-height:47px;font:700 11px var(--mono);letter-spacing:.04em}
+.delete-button:hover{background:#51342e}
+#erase-dialog .actions{margin-top:20px}
+#erase-dialog .delete-button{background:#8d4333;color:#fff1e3}
+@media(max-width:720px){
+ .history-heading{flex-direction:column}.history-total{width:100%;flex-direction:row;justify-content:center}
+ .history-total strong{font-size:32px}.history-list{grid-template-columns:1fr}
+ .history-controls{flex-direction:column;align-items:stretch}.history-controls button{width:100%}
+ .top-right{flex-wrap:wrap;justify-content:end;row-gap:2px}
+ .help-link{padding:5px 2px;font-size:9px}
+ .help-link span{display:none}
+}

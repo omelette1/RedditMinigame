@@ -31,5 +31,11 @@
   },
   "scripts": {
     "build": "npm run build"
+  },
+  "permissions": {
+    "redis": true,
+    "reddit": {
+      "enable": true
+    }
   }
 }

@@ -13,7 +13,7 @@
   <div class="site">
     <header class="topbar">
       <div class="brand" aria-label="The Unreliable Map"><span class="brand-seal">U<span>/</span>M</span><span class="brand-name">THE CARTOGRAPHERS' OFFICE<small>THE UNRELIABLE MAP</small></span></div>
-      <div class="top-right"><span class="today-label">TODAY'S DISPATCH</span><time id="today-date"></time><button type="button" class="help-link" id="help-open">HOW TO PLAY <span aria-hidden="true">?</span></button></div>
+      <div class="top-right"><span class="today-label">TODAY'S DISPATCH</span><time id="today-date"></time><button type="button" class="help-link" id="history-open" disabled>MY CHRONICLE <span aria-hidden="true">▤</span></button><button type="button" class="help-link" id="help-open">HOW TO PLAY <span aria-hidden="true">?</span></button></div>
     </header>
 
     <main>
@@ -36,7 +36,7 @@
               <div><div class="label">TODAY'S TALE</div><h2 id="cover-title"></h2><p id="cover-intro"></p></div>
             </div>
             <button type="button" class="primary-button" id="start-button">OPEN THE DISPATCH <span aria-hidden="true">↗</span></button>
-            <div class="cover-meta"><span>5 MINUTES</span><span>NO DICE ROLLS</span><span>SAME WORLD FOR EVERYONE</span></div>
+            <p class="account-sync" id="account-sync" role="status">CONNECTING TO YOUR REDDIT ACCOUNT…</p><div class="cover-meta"><span>5 MINUTES</span><span>NO DICE ROLLS</span><span>SAME WORLD FOR EVERYONE</span></div>
           </div>
           <div class="cover-art" aria-hidden="true">
             <div class="art-halo halo-one"></div><div class="art-halo halo-two"></div>
@@ -46,7 +46,7 @@
             <div class="art-card"><span>OFFICIAL SURVEY</span><b>DO NOT TRUST<br>EVERY LINE</b><small>THE CARTOGRAPHERS' OFFICE · 1897</small></div>
           </div>
         </div>
-        <div class="bottom-deck"><div><span class="eyebrow">THE PREMISE</span><p>Read the clues. Choose a dangerous route. Survive an encounter. Decide what matters more than getting home.</p></div><div><span class="eyebrow">YOUR STORY</span><p>Multiple paths and endings. Your first result is saved locally so you can compare it with other players.</p></div><div><span class="eyebrow">THE DAILY RITUAL</span><p>A shared adventure changes at midnight Pacific. Post your ending in the comments and compare choices.</p></div></div>
+        <div class="bottom-deck"><div><span class="eyebrow">THE PREMISE</span><p>Read the clues. Choose a dangerous route. Survive an encounter. Decide what matters more than getting home.</p></div><div><span class="eyebrow">YOUR STORY</span><p>Multiple paths and endings. Your progress is saved to your Reddit account when playing on Reddit, and locally in the standalone demo.</p></div><div><span class="eyebrow">THE DAILY RITUAL</span><p>A shared adventure changes at midnight Pacific. Post your ending in the comments and compare choices.</p></div></div>
       </section>
 
       <section id="screen-hero" class="screen" aria-labelledby="hero-title">
@@ -131,13 +131,20 @@
           <div class="report-path"><div class="label">HOW YOUR STORY UNFOLDED</div><ol id="report-path"></ol></div>
           <div class="report-bottom"><span id="report-hero"></span><span id="report-score"></span></div>
         </div>
-        <div class="after-report"><div><h3>Tell the other travelers.</h3><p>Everyone sees the same daily quest, but your ending depends on your decisions. Copy your chronicle into this Reddit post's comments and compare routes.</p><p id="first-run-note" class="first-note"></p></div><button type="button" class="primary-button" id="copy-button">COPY MY ENDING <span aria-hidden="true">↗</span></button></div>
+        <p class="account-result" id="account-result"></p><div class="after-report"><div><h3>Tell the other travelers.</h3><p>Everyone sees the same daily quest, but your ending depends on your decisions. Copy your chronicle into this Reddit post's comments and compare routes.</p><p id="first-run-note" class="first-note"></p></div><button type="button" class="primary-button" id="copy-button">COPY MY ENDING <span aria-hidden="true">↗</span></button></div>
         <div class="actions"><button type="button" id="replay-button" class="ghost-button">↺ EXPLORE ANOTHER PATH</button><button type="button" id="cover-button" class="outline-button">RETURN TO COVER</button></div>
       </section>
+      <section id="screen-history" class="screen history-screen" aria-labelledby="history-title">
+        <div class="screen-kicker">THE CARTOGRAPHERS' OFFICE / YOUR JOURNEYS</div>
+        <div class="history-heading"><div><h2 class="scene-title" id="history-title">My Chronicle</h2><p id="history-account" class="label"></p><p id="history-description" class="scene-description"></p></div><div class="history-total"><strong id="history-count">0</strong><span>COMPLETED<br>EXPEDITIONS</span></div></div>
+        <div class="history-list" id="history-list"></div>
+        <div class="history-controls"><button type="button" class="ghost-button" id="history-back">← BACK TO TODAY</button><button type="button" class="delete-button" id="erase-open" disabled>DELETE MY SAVED ADVENTURES</button></div>
+      </section>
     </main>
-    <footer><span>THE UNRELIABLE MAP · AN ORIGINAL DAILY STORY GAME</span><span>YOUR CHOICES ARE STORED ONLY IN THIS BROWSER</span></footer>
+    <footer><span>THE UNRELIABLE MAP · AN ORIGINAL DAILY STORY GAME</span><span>REDDIT ACCOUNT SAVES · LOCAL-ONLY DEVELOPMENT FALLBACK</span></footer>
   </div>
-  <dialog id="help-dialog" aria-labelledby="help-title"><div class="help-sheet"><button class="close-help" id="help-close" type="button" aria-label="Close help">×</button><span class="label">FIELD GUIDE</span><h2 id="help-title">How to survive a map that lies</h2><p>Every day, everyone receives the same journey. Play as a Warden, Scribe, or Tinker, then choose one of three routes. The chart may be outdated; a witness and a fresh report help you decide.</p><p>You have one scouting lantern. Use it to check whether a chosen route is reliable. Then face an encounter and a final decision; each choice changes your Resolve, Supplies, Clues, or Promise.</p><p><strong>Keep Resolve above zero</strong> to reach the end. Gain <strong>3 Promise</strong> to complete your quest, or <strong>3 Clues</strong> to uncover a secret. There are no dice rolls and no AI-generated outcomes.</p><p>Your first result is saved locally. Replay to explore another branch, then share your outcome in the Reddit comments.</p><button type="button" class="primary-button" id="help-done">UNDERSTOOD <span aria-hidden="true">→</span></button></div></dialog>
+  <dialog id="help-dialog" aria-labelledby="help-title"><div class="help-sheet"><button class="close-help" id="help-close" type="button" aria-label="Close help">×</button><span class="label">FIELD GUIDE</span><h2 id="help-title">How to survive a map that lies</h2><p>Every day, everyone receives the same journey. Play as a Warden, Scribe, or Tinker, then choose one of three routes. The chart may be outdated; a witness and a fresh report help you decide.</p><p>You have one scouting lantern. Use it to check whether a chosen route is reliable. Then face an encounter and a final decision; each choice changes your Resolve, Supplies, Clues, or Promise.</p><p><strong>Keep Resolve above zero</strong> to reach the end. Gain <strong>3 Promise</strong> to complete your quest, or <strong>3 Clues</strong> to uncover a secret. There are no dice rolls and no AI-generated outcomes.</p><p>Your Reddit progress syncs to your account within this subreddit installation. In localhost development, the demo uses browser-only saves. Replay to explore another branch, then share your outcome in the Reddit comments.</p><button type="button" class="primary-button" id="help-done">UNDERSTOOD <span aria-hidden="true">→</span></button></div></dialog>
+  <dialog id="erase-dialog" aria-labelledby="erase-title"><div class="help-sheet"><h2 id="erase-title">Delete your adventures?</h2><p>This permanently deletes the current journey and your saved history from this app's Reddit installation. You can start again afterward. This does not delete anything on Reddit outside the game.</p><div class="actions"><button type="button" class="ghost-button" id="erase-cancel">CANCEL</button><button type="button" class="delete-button" id="erase-confirm">YES, DELETE MY SAVES</button></div></div></dialog>
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 </body>
 </html>
