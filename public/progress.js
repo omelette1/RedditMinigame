@@ -85,11 +85,11 @@ export function applyProgressAction(value, dayKey, action) {
         p.run = advanceToEncounter(d, current);
         break;
       case "encounter":
-        if (!current || !Number.isInteger(action.index) || ![0, 1].includes(action.index)) throw new ProgressError("Invalid encounter decision");
+        if (!current || !Number.isInteger(action.index) || action.index < 0 || action.index >= d.encounterChoices.length) throw new ProgressError("Invalid encounter decision");
         p.run = advanceEncounter(d, current, action.index);
         break;
       case "finale": {
-        if (!current || !Number.isInteger(action.index) || ![0, 1].includes(action.index)) throw new ProgressError("Invalid final decision");
+        if (!current || !Number.isInteger(action.index) || action.index < 0 || action.index >= d.finaleChoices.length) throw new ProgressError("Invalid final decision");
         p.run = conclude(d, current, action.index);
         const e = p.run.ending;
         const record = {

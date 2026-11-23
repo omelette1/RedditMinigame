@@ -1,3 +1,5 @@
+import { generateDailyModules } from "./generator.js";
+
 // Pure, deterministic story rules. No hidden rolls or per-player randomness.
 export const HEROES = [
   { id: "warden", name: "The Warden", subtitle: "Stand between danger and your oath", symbol: "✦", stats: { resolve: 4, supplies: 1, insight: 0 } },
@@ -195,10 +197,26 @@ export function getDispatch(dayKey) {
   const omenIndex = ((Math.floor(number / QUESTS.length) % OMENS.length) + OMENS.length) % OMENS.length;
   const chapter = QUESTS[chapterIndex];
   const omen = OMENS[omenIndex];
+  const modules = generateDailyModules(chapter, omen, number);
   const routes = chapter.routes.map((route, index) => ({
-    ...route, id: String(index), reliable: route.sound && omen.staleRoute !== index,
+    ...route,
+    id: String(index),
+    reliable: route.sound && omen.staleRoute !== index,
+    // The day's complication adds a known risk; it does not falsely relabel
+    // a truthful map claim as an outright lie.
+    danger: Math.min(2, route.danger + (index === modules.routePressureIndex ? 1 : 0)),
   }));
-  return { ...chapter, routes, omen, dayKey, number, chapterIndex, omenIndex, dispatchNumber: number - Math.floor(Date.UTC(2026, 10, 11) / 86400000) + 1 };
+  return {
+    ...chapter,
+    ...modules,
+    routes,
+    omen,
+    dayKey,
+    number,
+    chapterIndex,
+    omenIndex,
+    dispatchNumber: number - Math.floor(Date.UTC(2026, 10, 11) / 86400000) + 1,
+  };
 }
 
 export function startRun(dispatch, heroId) {

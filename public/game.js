@@ -176,7 +176,7 @@ function renderRoutes() {
   $("route-intro").textContent = dispatch.introduction + " Your task: " + dispatch.promise;
   $("hero-chip").textContent = HEROES.find((hero) => hero.id === run.heroId).name.toUpperCase();
   $("field-witness").textContent = dispatch.witness;
-  $("field-omen").textContent = dispatch.omen.description;
+  $("field-omen").textContent = dispatch.omen.description + " " + dispatch.twist.description;
   statsFor("status-route");
   const holder = $("route-options");
   holder.replaceChildren();
