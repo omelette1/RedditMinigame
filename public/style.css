@@ -255,3 +255,41 @@ dialog::backdrop{background:#071213d9}
  .help-link{padding:5px 2px;font-size:9px}
  .help-link span{display:none}
 }
+
+/* D20 skill-check and consequence screens */
+.dice-screen{max-width:1110px;margin:0 auto}
+.dice-stage-grid{display:grid;grid-template-columns:minmax(230px,.85fr) minmax(0,1.15fr);gap:20px;min-height:460px}
+.dice-art{border:1px solid #a48e71;border-radius:6px;background:
+  radial-gradient(circle at 50% 41%,#6f6b59 0,#354b45 40%,#152729 85%);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:21px;min-height:440px;
+  box-shadow:inset 0 0 0 10px #17282a;position:relative}
+.dice-art:after{position:absolute;content:"";inset:22px;border:1px solid #b4a3876b;pointer-events:none;border-radius:3px}
+.dice-art svg{display:block;width:min(270px,70%);height:auto;filter:drop-shadow(0 18px 15px #0007)}
+.dice-art span{font:11px/1.5 var(--mono);letter-spacing:.11em;color:#d7c5a5;text-align:center;z-index:1}
+.dice-detail{background:linear-gradient(155deg,#28413d,#17292b);border:1px solid var(--edge);border-radius:5px;padding:clamp(23px,4vw,50px);display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
+.dice-detail .scene-title{margin:9px 0 17px}
+.dice-detail .story-prose{margin:5px 0 23px}
+.dice-math{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));width:100%;gap:8px;margin:12px 0 24px}
+.dice-math>div{display:flex;flex-direction:column;justify-content:space-between;gap:10px;padding:14px 9px;background:#1a302f;border:1px solid #647366;border-radius:4px;min-height:90px}
+.dice-math span{color:#bbcbbd;font:10px/1.4 var(--mono);letter-spacing:.04em}
+.dice-math strong{font:400 30px/1 var(--serif);color:#f0d4a9}
+.dice-hint{font:14px/1.6 var(--sans);color:#bed1c1;margin:0 0 23px}
+.dice-footnote{font:12px/1.5 var(--sans);color:#9db1a4;margin-top:17px}
+.decision-chance{font:700 11px/1.4 var(--mono);color:#afd5b4;border-top:1px solid var(--edge);padding-top:8px;margin-top:2px}
+.outcome-number{position:relative;z-index:1;display:grid;place-items:center;background:#7a5541;color:#fff4dc;
+  clip-path:polygon(50% 0,91% 23%,99% 69%,50% 100%,1% 69%,9% 23%);
+  width:min(240px,65vw);height:240px;font:130px var(--serif);text-shadow:0 7px 12px #0005;
+  box-shadow:0 0 0 7px #dec6a7}
+.dice-success .outcome-number{background:#456d57}
+.dice-failure .outcome-number{background:#9e5e4c}
+@media(max-width:720px){
+  .dice-stage-grid{grid-template-columns:1fr;gap:0}
+  .dice-art{min-height:200px;gap:0;border-radius:5px 5px 0 0}
+  .dice-art svg{width:120px}.dice-art span{margin-top:5px}
+  .dice-detail{border-radius:0 0 5px 5px;padding:25px 20px}
+  .dice-math{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  .dice-math>div{min-height:76px;padding:12px}
+  .dice-math strong{font-size:25px}
+  .outcome-number{width:130px;height:130px;font-size:72px;margin-bottom:10px}
+}
+@media(prefers-reduced-motion:reduce){.dice-art svg,.outcome-number{animation:none!important}}

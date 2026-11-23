@@ -2,24 +2,24 @@
 
 **An original branching daily fantasy expedition for Reddit Interactive Posts.**
 
-Everyone gets the same quest on a given Pacific calendar day. You choose a role and a route through a map that may be partly outdated; a witness, a daily field report and one scouting lantern help you decide. Along the road, an encounter and a final dilemma change your Resolve, Clues and Promise. Your decisions determine whether you arrive, keep your oath or uncover a secret. The ending card can be copied into the Reddit post's comments to compare outcomes.
+Everyone gets the same quest on a given Pacific calendar day. You choose a role and a route through a map that may be partly outdated; a witness, a daily field report and one scouting lantern help you decide. At each encounter and final dilemma, choose one of three actions and roll a real D20. Successful and failed attempts have different consequences; a failed encounter opens a new recovery route with a different set of final choices. Your decisions and dice determine whether you arrive, keep your oath or uncover a secret. The ending card can be copied into the Reddit post's comments to compare outcomes.
 
 ## How the game actually plays
 
 1. **Cover:** Preview the current episode and its central promise.
 2. **Traveler:** Choose Warden (more Resolve), Scribe (a head start on Clues), or Tinker (extra Supplies).
 3. **Map:** Compare three route claims with a witness account and a daily omen. Optionally scout one route. Maps are **not always wrong**.
-4. **Encounter:** Your chosen route adds a cost and can yield clues. Pick one of three authored responses (including a modular ally trade); each displays its mechanical effects.
-5. **Final decision:** Choose how to settle the quest. Resolve must remain above zero to reach the destination; 3 Promise completes your oath, and 3 Clues reveals the hidden truth.
-6. **Chronicle:** See an ending and the story choices that caused it, then copy the compact result to Reddit comments or replay another branch.
+4. **Encounter:** Your chosen route adds a cost and can reveal clues. Pick one of three authored responses (including an optional ally trade) and review its D20 target, bonus, and success chance. Then **roll the die** to determine whether your attempt succeeds. Failure opens a new recovery story with its own three options.
+5. **Final decision:** Choose one of three actions specific to the successful route or the recovery branch. Roll the die again. Resolve must remain above zero to reach the destination. Keeping your oath requires at least 3 Promise **and a successful final roll**; 3 Clues reveals the hidden truth.
+6. **Chronicle:** See both D20 results, narrative consequences, and an ending determined by your decisions and rolls. Copy the compact result to Reddit comments or replay another branch.
 
-This is a **deterministic game**, not a generative text chatbot. The story choices, encounters and outcomes are authored and designed to be legible without hidden dice rolls. Results are not controlled by votes. The same choices on the same day give the same result.
+The **daily quest generator is deterministic**, but **D20 rolls are genuinely random**. The authored story branches are not a generative text chatbot, and the dice are never hidden. The same daily scene appears to everyone, but identical choices can produce different outcomes because of their real D20 rolls.
 
 ## Daily content and procedural replayability
 
 - 12 authored settings with their own introductions, witness accounts, paths, encounters and final dilemmas.
 - 7 rotating map conditions, 8 authored world complications and 6 distinct recurring travelers are now combined deterministically by the Pacific date. That gives **12 × 7 × 8 × 6 = 4,032 distinct modular combinations** before the entire combination cycle repeats. These are **NOT 4,032 wholly original story arcs**: each of the 12 main quests repeats with changed events, conditions, ally interactions and choices.
-- 3 roles × 3 routes × 3 encounter choices × 3 final choices = **81 potential decision paths per daily combination**. The third choices cost 1 Supply, so some paths are locked after spending Supplies earlier. Outcomes also depend on changing route hazards and other accumulated resources.
+- 3 roles × 3 routes × 3 encounter choices × 3 final choices = **81 potential decision-choice combinations per daily edition**, plus two separate D20 checks that can each pass or fail. A failed encounter unlocks **three distinct recovery actions** in the final scene. Some ally choices cost Supplies and may be inaccessible if Supplies run out. Both rolls are persisted so reloading cannot reroll an attempt.
 - The chapter changes at **midnight America/Los_Angeles** and rechecks while open; a previous day's in-progress run is not migrated to the new day.
 - Progress now syncs with each signed-in player's Reddit account using Devvit's server-authenticated `context.userId` and Redis. The current quest, its choices, first result, and a bounded history of 40 completed journeys are saved. Reopening the game on another device in **the same subreddit installation** restores the same progress. Reddit's Redis is siloed by subreddit; there is no global cross-subreddit account profile or automatic new-post scheduler.
 
@@ -27,7 +27,7 @@ The standalone localhost preview uses a separate browser-only save. In the Reddi
 
 ### Limits and next creative milestones
 
-Journeys still have a common structure (route → encounter → finale). The generator assembles compatible authored modules; it does not write new prose through a live AI model, invent wholly new chapters, or create an infinite procedural world. Dice rolling and combat are NOT implemented. The writing and mechanics differ, and branches affect scores, fate and chronicle, but this is not yet an open-ended tabletop roleplaying engine. Further polish should prioritize **mid-journey branching scenes**, unlockable secrets, richer chapter-specific puzzles, and player research/playtests before claiming fully unique stories every day.
+Journeys still have a compact structure (route → three-way encounter → D20 outcome → branched three-way finale → D20 outcome). The generator assembles compatible authored modules; it does not write new prose through a live AI model, invent wholly new chapters, or create an infinite procedural world. **D20 dice rolling is implemented; combat is intentionally not.** The writing and mechanics differ, and branches affect scores, fate and chronicle, but this is not yet an open-ended tabletop roleplaying engine. Further polish should prioritize **mid-journey branching scenes**, unlockable secrets, richer chapter-specific puzzles, and player research/playtests before claiming fully unique stories every day.
 
 ## Run in a regular browser
 
@@ -55,7 +55,7 @@ For upload and release, follow the current official [Devvit development docs](ht
 
 ## Testing
 
-`npm test` covers the 12 episode definitions, Pacific date boundaries, 84 unique rotations, 3,024 deterministic playthrough combinations, alternate branches, illegal actions, and UI element IDs. `npm run check` also checks JS syntax and bundles the Devvit client/server with esbuild. GitHub Actions runs these checks on new commits and pull requests. The new `tests/progress.test.js` also covers per-user isolation, save/resume, rejection of forged scores, stale revisions, day rollover, history bounds, and account data deletion.
+`npm test` covers the 12 episode definitions, Pacific date boundaries, all 4,032 modular edition combinations, D20 checks and both success/failure branches, alternate recovery scenes, illegal dice rerolls, and UI element IDs. `npm run check` also checks JS syntax and bundles the Devvit client/server with esbuild. GitHub Actions runs these checks on new commits and pull requests. The new `tests/progress.test.js` also covers per-user isolation, save/resume, rejection of forged scores, stale revisions, day rollover, history bounds, and account data deletion.
 
 ## Hackathon
 
@@ -65,7 +65,7 @@ The README and GitHub repository provide the source, but do not replace the requ
 
 ## Reddit account-linked progress
 
-**No separate registration or Reddit password is required.** Reddit supplies the signed-in user's internal `t2_` identifier to the trusted Devvit server context. Save endpoints do not take a username or user ID. The server stores a record under a private account key in Reddit-hosted Redis for that subreddit installation. Clients send **actions** (select role, select route, scout, advance encounter/finale), rather than arbitrary stats or outcomes; the server replays each choice through the deterministic rule engine. The `WATCH`/transaction and revision checks reduce concurrent-device overwrite risks.
+**No separate registration or Reddit password is required.** Reddit supplies the signed-in user's internal `t2_` identifier to the trusted Devvit server context. Save endpoints do not take a username or user ID. The server stores a record under a private account key in Reddit-hosted Redis for that subreddit installation. Clients send **actions** (select role, route, scout, choose one of three actions, roll, continue), rather than arbitrary stats, scores, or outcomes. The server generates the D20 result using Node's cryptographically secure `randomInt(1, 21)`, applies the game rules, and writes the new state atomically. The `WATCH`/transaction and revision checks reduce concurrent-device overwrite risks.
 
 The **MY CHRONICLE** menu lists completed adventures and today's personal first ending. Use **DELETE MY SAVED ADVENTURES** in the Chronicle to delete that installation's save record. Data expires automatically after **30 days of inactivity** to minimize indefinitely retained account-linked data. A returning player after that period starts fresh; the game does not promise permanent lifetime saves. Account data is not shared between subreddit installations. The game doesn't post or comment automatically, and it doesn't store Reddit posts, comments, messages, or display names.
 
@@ -79,8 +79,24 @@ These use Reddit's built-in server identity, not client-submitted IDs. `devvit.j
 
 ### How the generator works (without routine content updates)
 
-`public/generator.js` contains two curated module sets: eight world complications (with new hazards, descriptions and scenes) and six traveling allies (each contributes an extra encounter option and a final choice). `public/story.js:getDispatch(dayKey)` selects a consistent quest/omen/twist/ally tuple using the Pacific calendar date. No AI API calls, background jobs, manual publishing or recurring code releases are required to change **the quest shown by the app** at midnight Pacific. Everyone sees the same content for the same day because the selection function is pure, with no per-user randomness.
+`public/generator.js` contains two curated module sets: eight world complications (with new hazards, descriptions and scenes) and six traveling allies (each contributes an extra encounter option and a final choice). `public/story.js:getDispatch(dayKey)` selects a consistent quest/omen/twist/ally tuple using the Pacific calendar date. No AI API calls, background jobs, manual publishing or recurring code releases are required to change **the quest shown by the app** at midnight Pacific. Everyone sees the same **quest and options** on a given day. Individual dice results are random and may send different players down different branches.
 
 **Publishing a new Reddit post each day is separate.** This code changes what an existing game post displays; it does NOT automatically schedule or create a new game post. Each day is a different *combination*, not an entirely new hand-crafted narrative. The 4,032-edition cycle is a mathematical combination count, not proof of literary uniqueness or quality. Before submission, human editing should ensure the assembled scenes are coherent and rewarding.
 
-The original unreliable-map mechanic remains: some maps are correct, and the witness accounts and visible daily conditions help players decide. The world complication applies an extra hazard to one known route. Ally trade options cost 1 Supply; the Tinker has enough to use both the mid-journey and final trade. `tests/generator.test.js` verifies deterministic content, all 4,032 tuples, branch playthroughs, third-choice persistence, and supply gating.
+The original unreliable-map mechanic remains: some maps are correct, and the witness accounts and visible daily conditions help players decide. The world complication applies an extra hazard to one known route. Ally trade options cost 1 Supply; the Tinker has enough to use both the mid-journey and final trade. `tests/generator.test.js` verifies deterministic daily content, all 4,032 tuples, successful and failed skill-check branches, third-choice persistence, and Supply gating.
+
+## Real D20 checks (no combat)
+
+Choosing one of the three actions at the encounter or finale **does not immediately apply it**. Instead, the game saves the pending choice and shows its exact skill check: **D20 + ability bonus**, compared with a difficulty target (DC). Warden has a specialty on bold first actions, Scribe on investigative second actions, and Tinker on tool-using third actions; current stats also influence the bonus. The difficulty rises with the risk of the action. A **natural 20 always succeeds**, and a **natural 1 always fails**.
+
+- **Success:** Apply the action's effects, show its authored outcome, and continue along the successful branch. A successful encounter uses the original final scene and actions.
+- **Encounter failure:** Show a distinct failure scene, apply the setback (and still spend any committed Supplies), and open a **recovery detour** with three different final options and scenes. An unsuccessful investigation may reveal a clue despite the setback.
+- **Finale failure:** The promise cannot be fully kept, even if the player's prior Promise points were sufficient. The game still tells a concrete failure-ending story; the character can survive, gain clues, and return to the Chronicle.
+
+Two D20 results, target thresholds, decisions, consequences, and the branch taken are part of the saved history. A pending or resolved roll is stored on the Reddit account and cannot be rerolled by refreshing the post. **Explicitly replaying an adventure starts a new attempt with new dice**; the first result for the day remains recorded separately. The standalone localhost demo uses `crypto.getRandomValues` and labels its saves local-only; the deployed Reddit server uses `node:crypto` inside the `WATCH`/transaction flow.
+
+The D20 mechanics and story content are original for this project. There are **no combat rules** and no usage of D&D-branded characters, settings, or published story text. The current quest is still a concise mini-adventure rather than a full tabletop campaign.
+
+### Release validation
+
+Run `npm run check` and `npm run devvit:playtest`, and test both successful and failed rolls on desktop and mobile, including save/reload, repeated clicks, another device, and another account. GitHub source checks don't guarantee that Reddit's deployment and WebView run successfully.

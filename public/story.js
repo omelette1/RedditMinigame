@@ -223,9 +223,21 @@ export function startRun(dispatch, heroId) {
   const hero = HEROES.find((item) => item.id === heroId);
   if (!hero) throw new Error("Unknown hero");
   return {
-    dayKey: dispatch.dayKey, heroId, phase: "route", routeId: null, scoutedId: null,
-    encounterChoice: null, finalChoice: null, finished: false,
-    stats: { ...hero.stats, oath: 0 }, history: [], ending: null,
+    dayKey: dispatch.dayKey,
+    heroId,
+    phase: "route",
+    routeId: null,
+    scoutedId: null,
+    encounterChoice: null,
+    finalChoice: null,
+    branch: null,
+    pendingRoll: null,
+    lastRoll: null,
+    rolls: [],
+    finished: false,
+    stats: { ...hero.stats, oath: 0 },
+    history: [],
+    ending: null,
   };
 }
 
@@ -244,46 +256,164 @@ export function advanceToEncounter(dispatch, run) {
   const route = dispatch.routes.find((item) => item.id === run.routeId);
   const hazard = Math.min(2, route.danger + (route.reliable ? 0 : 1));
   const stats = { ...run.stats, resolve: run.stats.resolve - hazard, insight: run.stats.insight + route.insight, oath: run.stats.oath + route.oath };
-  return { ...run, phase: "encounter", stats, history: [...run.history, { title: "The path", text: route.scene, cost: hazard }] };
+  return {
+    ...run, phase: "encounter", stats,
+    history: [...run.history, { title: "The path", text: route.scene, cost: hazard }],
+  };
 }
 
 export function canAfford(run, choice) {
   return Object.entries(choice.effects).every(([key, delta]) => delta >= 0 || key !== "supplies" || run.stats.supplies + delta >= 0);
 }
 
-function applyChoice(run, choice, key, phase, title) {
+export function getFinaleChoices(dispatch, run) {
+  return run.branch === "detour" ? dispatch.recoveryChoices : dispatch.finaleChoices;
+}
+
+export function getFinaleScene(dispatch, run) {
+  if (run.branch !== "detour") return dispatch.finale;
+  const route = dispatch.routes.find((item) => item.id === run.routeId);
+  return "Your attempt on the road failed, revealing a different way forward. " +
+    "The " + route.name + " led you to " + route.evidence.toLowerCase() + ". " +
+    dispatch.ally.name + " says the original plan is lost, but the promise can still be saved. " +
+    "A new decision awaits at " + dispatch.place.toLowerCase() + ".";
+}
+
+export function getRollPreview(dispatch, run, stage, index) {
+  const choices = stage === "encounter" ? dispatch.encounterChoices :
+    stage === "finale" ? getFinaleChoices(dispatch, run) : null;
+  const expected = stage === "encounter" ? "encounter" : "finale";
+  if (!choices || run.phase !== expected || !Number.isInteger(index) || index < 0 || index >= choices.length) {
+    throw new Error("That action cannot be attempted now");
+  }
+  const choice = choices[index];
   if (!canAfford(run, choice)) throw new Error("Not enough supplies");
+  const attribute = index === 0 ? "resolve" : index === 1 ? "insight" : "supplies";
+  const value = run.stats[attribute];
+  const ability = Math.max(-1, Math.min(2, Math.floor((value - 1) / 2)));
+  const specialist = (run.heroId === "warden" && index === 0) ||
+    (run.heroId === "scribe" && index === 1) ||
+    (run.heroId === "tinker" && index === 2) ? 2 : 0;
+  const modifier = ability + specialist;
+  const dc = (stage === "encounter" ? 11 : 12) + index +
+    (stage === "finale" && run.branch === "detour" ? 1 : 0);
+  return { stage, index, label: choice.label, dc, modifier, attribute };
+}
+
+export function prepareRoll(dispatch, run, stage, index) {
+  const pendingRoll = getRollPreview(dispatch, run, stage, index);
+  return { ...run, phase: "roll", pendingRoll, lastRoll: null };
+}
+
+function failureScene(dispatch, run, pending) {
+  const route = dispatch.routes.find((item) => item.id === run.routeId);
+  if (pending.stage === "encounter") {
+    if (pending.index === 0) return "You attempt " + pending.label.toLowerCase() +
+      ", but " + dispatch.twist.title.toLowerCase() + " disrupts the plan. " +
+      "A broken marker near " + route.evidence.toLowerCase() + " forces you to seek a different route.";
+    if (pending.index === 1) return "You try to uncover the truth, but the evidence leads you astray. " +
+      "Only after the mistake does " + route.evidence.toLowerCase() +
+      " reveal a forgotten clue. The direct plan is no longer possible.";
+    return "You ask " + dispatch.ally.name + " for help, but the borrowed gear fails at the worst moment. " +
+      "You lose the supplies and discover a hidden detour near " + route.evidence.toLowerCase() + ".";
+  }
+  if (pending.index === 0) return "You give everything to " + pending.label.toLowerCase() +
+    ", but the attempt breaks under the pressure of " + dispatch.twist.title.toLowerCase() +
+    ". You find a way to escape, though the promise cannot be completed this way.";
+  if (pending.index === 1) return "The carefully chosen clues lead to the wrong conclusion. " +
+    "You discover the mistake just in time to save yourself, but your intended solution is lost.";
+  return "You place your trust in " + dispatch.ally.name +
+    ", but the last tool breaks before the task is finished. You return with a warning for the next traveler.";
+}
+
+export function resolvePendingRoll(dispatch, run, die) {
+  if (run.phase !== "roll" || !run.pendingRoll) throw new Error("No action awaits a roll");
+  // Only trusted server code (or local crypto in the standalone demo) passes die.
+  if (!Number.isInteger(die) || die < 1 || die > 20) throw new Error("A real D20 roll is required");
+  const pending = run.pendingRoll;
+  const choices = pending.stage === "encounter" ? dispatch.encounterChoices : getFinaleChoices(dispatch, run);
+  const choice = choices[pending.index];
+  if (!choice || choice.label !== pending.label || !canAfford(run, choice)) {
+    throw new Error("The pending action is no longer valid");
+  }
+  const total = die + pending.modifier;
+  const success = die === 20 || (die !== 1 && total >= pending.dc);
   const stats = { ...run.stats };
-  for (const [stat, delta] of Object.entries(choice.effects)) stats[stat] += delta;
-  return { ...run, [key]: choice.label, phase, stats, history: [...run.history, { title, text: choice.result }] };
-}
-
-export function advanceEncounter(dispatch, run, index) {
-  const choice = dispatch.encounterChoices[index];
-  if (run.phase !== "encounter" || !choice) throw new Error("Encounter choice unavailable");
-  return applyChoice(run, choice, "encounterChoice", "finale", "Your decision");
-}
-
-export function conclude(dispatch, run, index) {
-  const choice = dispatch.finaleChoices[index];
-  if (run.phase !== "finale" || !choice) throw new Error("Finale choice unavailable");
-  const next = applyChoice(run, choice, "finalChoice", "report", "At the threshold");
-  const route = dispatch.routes.find((item) => item.id === next.routeId);
-  const arrived = next.stats.resolve > 0;
-  const keptPromise = arrived && next.stats.oath >= 3;
-  const discovered = arrived && next.stats.insight >= 3;
-  const rank = keptPromise ? "oathkeeper" : arrived ? "survivor" : "lost";
-  const ending = {
-    rank, arrived, keptPromise, discovered,
-    title: keptPromise ? "The oath was kept" : arrived ? "The road demanded a price" : "The road turned you back",
-    description: keptPromise
-      ? "Against the changing chart, you saw " + dispatch.promise.toLowerCase() + " through to its end."
-      : arrived
-        ? "You reached " + dispatch.place.toLowerCase() + ", but the promise changed hands before it could be fulfilled."
-        : "Your strength ran out before the final mile. You turned back alive, carrying the weight of an unfinished promise.",
-    detail: choice.result, routeName: route.name,
-    path: next.history.map((item) => item.title + ": " + item.text),
-    score: Math.max(0, next.stats.oath * 2 + next.stats.insight + Math.max(0, next.stats.resolve)),
+  if (success) {
+    for (const [key, delta] of Object.entries(choice.effects)) stats[key] += delta;
+  } else {
+    // On failure, a traded supply is still spent. Other rewards do not apply.
+    for (const [key, delta] of Object.entries(choice.effects)) {
+      if (key === "supplies" && delta < 0) stats[key] += delta;
+    }
+    if (pending.index === 0) stats.resolve -= 1;
+    if (pending.index === 1) stats.insight += 1; // Fail forward: learn from a wrong deduction.
+  }
+  const scene = success ? choice.result : failureScene(dispatch, run, pending);
+  const roll = {
+    stage: pending.stage, choice: choice.label, index: pending.index,
+    die, modifier: pending.modifier, dc: pending.dc, total,
+    success, scene,
   };
-  return { ...next, finished: true, ending };
+  const label = success ? "SUCCESS" : "SETBACK";
+  const history = [...run.history, {
+    title: (pending.stage === "encounter" ? "Encounter" : "Final decision") + " · " + label +
+      " (D20 " + die + " " + (pending.modifier < 0 ? "− " : "+ ") + Math.abs(pending.modifier) +
+      " vs " + pending.dc + ")",
+    text: scene,
+  }];
+  const next = {
+    ...run,
+    phase: "result",
+    pendingRoll: null,
+    lastRoll: roll,
+    rolls: [...(run.rolls || []), roll],
+    branch: pending.stage === "encounter" ? (success ? "clear" : "detour") : run.branch,
+    encounterChoice: pending.stage === "encounter" ? choice.label : run.encounterChoice,
+    finalChoice: pending.stage === "finale" ? choice.label : run.finalChoice,
+    stats, history,
+  };
+  return pending.stage === "finale" ? {
+    ...next, finished: true, ending: buildEnding(dispatch, next),
+  } : next;
+}
+
+function buildEnding(dispatch, run) {
+  const finaleRoll = run.lastRoll;
+  const route = dispatch.routes.find((item) => item.id === run.routeId);
+  const arrived = run.stats.resolve > 0;
+  // A failed final check is a genuinely different ending even if the player's
+  // previous stats would otherwise have satisfied the promise threshold.
+  const keptPromise = arrived && finaleRoll.success && run.stats.oath >= 3;
+  const discovered = arrived && run.stats.insight >= 3;
+  const rank = keptPromise ? "oathkeeper" : arrived ? "survivor" : "lost";
+  return {
+    rank, arrived, keptPromise, discovered,
+    title: keptPromise ? "The oath was kept" : arrived ?
+      finaleRoll.success ? "The road demanded a price" : "The promise slipped away" :
+      "The road turned you back",
+    description: keptPromise
+      ? "Against the changing chart and the roll of the dice, you kept your oath: " + dispatch.promise
+      : arrived
+        ? finaleRoll.success
+          ? "You found a way through " + dispatch.place.toLowerCase() +
+            ", but your choices did not fully settle the promise."
+          : "You survived " + dispatch.place.toLowerCase() +
+            ", but your final attempt failed. The unfinished promise will trouble the next traveler."
+        : "Your strength ran out before the last mile. You turned back alive with a story that did not end as planned.",
+    detail: finaleRoll.scene,
+    routeName: route.name,
+    path: run.history.map((entry) => entry.title + ": " + entry.text),
+    score: Math.max(0, run.stats.oath * 2 + run.stats.insight + Math.max(0, run.stats.resolve) +
+      (run.rolls || []).filter((roll) => roll.success).length * 2),
+    detour: run.branch === "detour",
+    rolls: run.rolls.map((entry) => ({
+      stage: entry.stage, die: entry.die, total: entry.total, dc: entry.dc, success: entry.success,
+    })),
+  };
+}
+
+export function continueAfterRoll(run) {
+  if (run.phase !== "result" || !run.lastRoll) throw new Error("No dice outcome to continue from");
+  return { ...run, phase: run.lastRoll.stage === "encounter" ? "finale" : "report" };
 }

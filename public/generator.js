@@ -133,6 +133,19 @@ export function generateDailyModules(chapter, omen, number) {
     ...chapter.finaleChoices,
     extra(ally.final, ally.finalDetail, { supplies: -1, oath: 2 }, ally.ending),
   ];
+  // If the first attempt fails, the story opens an alternate rescue/detour
+  // scene with three genuinely different actions—not just a red failure label.
+  const recoveryChoices = [
+    extra("Restore the broken promise", "Take the hard way back to the original objective, despite the setback.",
+      { resolve: -1, oath: 2 },
+      "You find another opening and make your way back toward " + chapter.place.toLowerCase() + ", determined not to abandon the promise."),
+    extra("Follow the hidden evidence", "Find a new approach using the clues that the setback revealed.",
+      { insight: 1, oath: 1 },
+      "The evidence overlooked along the first road points to a quieter way through " + chapter.place.toLowerCase() + "."),
+    extra("Ask " + ally.name + " for rescue", ally.finalDetail,
+      { supplies: -1, oath: 2 },
+      ally.ending + " Together you return to the quest by a different road."),
+  ];
   return {
     twist,
     ally,
@@ -145,6 +158,7 @@ export function generateDailyModules(chapter, omen, number) {
     finale: chapter.finale + " " + twist.finale,
     encounterChoices,
     finaleChoices,
+    recoveryChoices,
     routePressureIndex: twist.pressure,
   };
 }

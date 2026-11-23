@@ -1,3 +1,4 @@
+import { randomInt } from "node:crypto";
 import { applyProgressAction, emptyProfile, normalizeProfile, projectProfile, ProgressError } from "../../public/progress.js";
 
 // Devvit Redis is namespaced by subreddit installation. Keys deliberately use
@@ -51,7 +52,11 @@ export async function updateAccountProgress(redis, userId, dayKey, expectedRevis
     if (previous.revision !== expectedRevision) {
       throw new ProgressError("Another device updated this adventure. Reload to continue.", 409);
     }
-    const next = applyProgressAction(previous, dayKey, action);
+    // Secure and authoritative: the client chooses an action, never the die.
+    // Revisions/phase are checked before rolling; the result is committed with
+    // the full player state so reloads cannot request a free reroll.
+    const trustedDie = action?.type === "roll" ? randomInt(1, 21) : undefined;
+    const next = applyProgressAction(previous, dayKey, action, trustedDie);
     await tx.multi();
     await tx.set(key, JSON.stringify(next));
     await tx.expire(key, PROGRESS_TTL_SECONDS);

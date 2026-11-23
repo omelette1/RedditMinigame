@@ -16,6 +16,17 @@ function localLoad() {
   } catch { return emptyProfile(); }
 }
 
+
+// In the localhost demo, use the browser's cryptographic generator rather
+// than Math.random. Reddit play uses the server's node:crypto randomInt.
+function localD20() {
+  if (!globalThis.crypto?.getRandomValues) throw new Error("Secure dice are unavailable in this browser.");
+  const number = new Uint32Array(1);
+  const limit = Math.floor(0x100000000 / 20) * 20;
+  do { globalThis.crypto.getRandomValues(number); } while (number[0] >= limit);
+  return (number[0] % 20) + 1;
+}
+
 function localSave(value) {
   try { window.localStorage.setItem(LOCAL_KEY, JSON.stringify(value)); }
   catch { throw new Error("This browser cannot save your local demo progress."); }
@@ -65,7 +76,7 @@ export async function loadPlayer() {
 export async function submitPlayerAction(revision, action) {
   if (mode === "local") {
     if (localView().revision !== revision) throw new Error("The demo progress changed in another tab. Reload to continue.");
-    profile = applyProgressAction(profile, pacificDayKey(), action);
+    profile = applyProgressAction(profile, pacificDayKey(), action, action?.type === "roll" ? localD20() : undefined);
     localSave(profile);
     return localView();
   }

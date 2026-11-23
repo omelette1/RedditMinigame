@@ -1,9 +1,9 @@
-import { HEROES, pacificDayKey, getDispatch, canAfford } from "./story.js";
+import { HEROES, pacificDayKey, getDispatch, canAfford, getFinaleChoices, getFinaleScene, getRollPreview } from "./story.js";
 import { loadPlayer, submitPlayerAction, erasePlayer, playerMode } from "./account.js";
 
 const $ = (id) => document.getElementById(id);
-const screens = ["cover", "hero", "route", "encounter", "finale", "report", "history"];
-const validRunPhases = new Set(["route", "encounter", "finale", "report"]);
+const screens = ["cover", "hero", "route", "encounter", "roll", "result", "finale", "report", "history"];
+const validRunPhases = new Set(["route", "encounter", "roll", "result", "finale", "report"]);
 let dispatch;
 let run = null;
 let heroDraft = null;
@@ -112,7 +112,8 @@ function show(name) {
   document.querySelectorAll(".screen").forEach((section) => section.classList.toggle("is-active", section.id === "screen-" + name));
   $("chapter-tracker").hidden = name === "cover" || name === "history";
   const steps = ["hero", "route", "encounter", "finale", "report"];
-  const at = steps.indexOf(name);
+  const actualStage = name === "roll" ? run?.pendingRoll?.stage : name === "result" ? run?.lastRoll?.stage : name;
+  const at = steps.indexOf(actualStage);
   document.querySelectorAll("[data-step]").forEach((item) => {
     const index = steps.indexOf(item.dataset.step);
     item.classList.toggle("current", index === at);
@@ -122,6 +123,8 @@ function show(name) {
   if (name === "hero") renderHeroes();
   if (name === "route") renderRoutes();
   if (name === "encounter") renderEncounter();
+  if (name === "roll") renderRoll();
+  if (name === "result") renderDiceResult();
   if (name === "finale") renderFinale();
   if (name === "report") renderReport();
   if (name === "history") renderHistory();
@@ -228,7 +231,14 @@ function presentChoices(holderId, choices, actionType) {
     button.disabled = !affordable;
     const heading = make("span", "decision-line");
     heading.append(make("strong", "", choice.label), make("span", "", "↗"));
-    button.append(heading, make("span", "decision-description", choice.detail), make("small", "decision-effects", effectText(choice)));
+    button.append(heading, make("span", "decision-description", choice.detail),
+      make("small", "decision-effects", "IF SUCCESSFUL: " + effectText(choice)));
+    if (affordable) {
+      const preview = getRollPreview(dispatch, run, actionType, index);
+      button.append(make("span", "decision-chance", "ROLL D20 " +
+        (preview.modifier < 0 ? "− " : "+ ") + Math.abs(preview.modifier) +
+        " · TARGET " + preview.dc + " · " + chanceOfSuccess(preview) + "% SUCCESS"));
+    }
     if (!affordable) button.append(make("span", "decision-disabled", "NOT ENOUGH SUPPLIES"));
     button.addEventListener("click", () => {
       if (affordable) takeAction({ type: actionType, index });
@@ -250,10 +260,59 @@ function renderEncounter() {
 function renderFinale() {
   $("finale-title").textContent = "What do you owe the world?";
   $("previous-action").textContent = run.history.at(-1)?.text || "";
-  $("finale-scene").textContent = dispatch.finale;
+  $("finale-scene").textContent = getFinaleScene(dispatch, run);
   statsFor("status-finale");
-  presentChoices("finale-options", dispatch.finaleChoices, "finale");
+  presentChoices("finale-options", getFinaleChoices(dispatch, run), "finale");
 }
+function chanceOfSuccess({ dc, modifier }) {
+  let favorable = 0;
+  for (let n = 1; n <= 20; n++) {
+    if (n === 20 || (n !== 1 && n + modifier >= dc)) favorable++;
+  }
+  return favorable * 5;
+}
+
+function renderRoll() {
+  if (!run?.pendingRoll) return show(run?.phase === "report" ? "report" : "cover");
+  const pending = run.pendingRoll;
+  $("dice-stage").textContent = pending.stage === "encounter" ?
+    "DISPATCH 03 / ENCOUNTER · ROLL THE D20" : "DISPATCH 04 / FINAL DECISION · ROLL THE D20";
+  $("dice-title").textContent = pending.stage === "encounter" ?
+    "Will your attempt work?" : "Will you keep the promise?";
+  $("dice-action").textContent = pending.label;
+  $("dice-modifier").textContent = (pending.modifier >= 0 ? "+" : "−") + Math.abs(pending.modifier);
+  $("dice-dc").textContent = String(pending.dc);
+  $("dice-chance").textContent = chanceOfSuccess(pending) + "%";
+  $("dice-hint").textContent = "Roll a D20, add your " + statLabels[pending.attribute] +
+    " bonus (" + (pending.modifier >= 0 ? "+" : "") + pending.modifier +
+    "), and meet target " + pending.dc +
+    ". Natural 20 always succeeds; natural 1 always fails. A failed encounter opens a detour.";
+}
+
+function renderDiceResult() {
+  if (!run?.lastRoll) return show("cover");
+  const rolled = run.lastRoll;
+  $("outcome-die").textContent = String(rolled.die);
+  $("outcome-die-panel").classList.toggle("dice-success", rolled.success);
+  $("outcome-die-panel").classList.toggle("dice-failure", !rolled.success);
+  $("outcome-total").textContent = "D20 " + rolled.die + " " +
+    (rolled.modifier >= 0 ? "+ " : "− ") + Math.abs(rolled.modifier) +
+    " = " + rolled.total + "  ·  TARGET " + rolled.dc;
+  $("outcome-label").textContent = rolled.success ? "✓ THE ATTEMPT SUCCEEDED" : "✕ THE ATTEMPT FAILED";
+  $("outcome-title").textContent = rolled.success ? "The road opens." : "A different path appears.";
+  $("outcome-scene").textContent = rolled.scene;
+  $("outcome-consequence").textContent = rolled.stage === "encounter" ?
+    rolled.success
+      ? "You succeed. The original finale is now open."
+      : "The original plan failed. Your next scene and all three final actions will change to a recovery quest."
+    : rolled.success
+      ? "You completed this attempt. Your ending reflects the promise and resources you kept."
+      : "You did not complete this attempt. Your chronicle records what you tried and the consequences.";
+  $("outcome-next").firstChild.textContent = rolled.stage === "encounter" ?
+    "FOLLOW THE NEXT SCENE " : "READ YOUR CHRONICLE ";
+  statsFor("status-result");
+}
+
 function renderReport() {
   if (!run?.ending) return show("cover");
   const e = run.ending;
@@ -284,7 +343,10 @@ function shareText() {
     e.title + " · " + e.score + " points\n" +
     (e.arrived ? "✓ Arrived" : "✕ Turned back") + " | " + (e.keptPromise ? "✓ Promise kept" : "✕ Promise lost") +
     " | " + (e.discovered ? "✓ Secret found" : "— No secret") + "\n" +
-    "My choice: " + run.encounterChoice + " → " + run.finalChoice + "\n" +
+    "My choices: " + run.encounterChoice + " → " + run.finalChoice + "\n" +
+    "D20 checks: " + (e.rolls || []).map((roll) =>
+      roll.stage + " " + roll.die + " (" + roll.total + "/" + roll.dc + ", " +
+      (roll.success ? "pass" : "fail") + ")").join(" · ") + "\n" +
     "What would you have done?";
 }
 async function copyEnding() {
@@ -352,6 +414,8 @@ $("scout-button").addEventListener("click", () => takeAction({ type: "scout" }))
 $("replay-button").addEventListener("click", () => takeAction({ type: "restart" }));
 $("cover-button").addEventListener("click", () => show("cover"));
 $("copy-button").addEventListener("click", copyEnding);
+$("roll-button").addEventListener("click", () => takeAction({ type: "roll" }));
+$("outcome-next").addEventListener("click", () => takeAction({ type: "continue" }));
 $("erase-open").addEventListener("click", () => $("erase-dialog").showModal());
 $("erase-cancel").addEventListener("click", () => $("erase-dialog").close());
 $("erase-confirm").addEventListener("click", async () => {

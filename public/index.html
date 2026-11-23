@@ -36,7 +36,7 @@
               <div><div class="label">TODAY'S TALE</div><h2 id="cover-title"></h2><p id="cover-intro"></p></div>
             </div>
             <button type="button" class="primary-button" id="start-button">OPEN THE DISPATCH <span aria-hidden="true">↗</span></button>
-            <p class="account-sync" id="account-sync" role="status">CONNECTING TO YOUR REDDIT ACCOUNT…</p><div class="cover-meta"><span>5 MINUTES</span><span>NO DICE ROLLS</span><span>SAME WORLD FOR EVERYONE</span></div>
+            <p class="account-sync" id="account-sync" role="status">CONNECTING TO YOUR REDDIT ACCOUNT…</p><div class="cover-meta"><span>5 MINUTES</span><span>TWO D20 TESTS</span><span>SAME WORLD FOR EVERYONE</span></div>
           </div>
           <div class="cover-art" aria-hidden="true">
             <div class="art-halo halo-one"></div><div class="art-halo halo-two"></div>
@@ -100,9 +100,57 @@
           <p class="story-prose" id="encounter-scene"></p>
           <p class="story-context" id="encounter-context"></p>
           <div class="status-strip" id="status-encounter"></div>
-          <div class="decision-heading"><span>WHAT DO YOU DO?</span><small>NO RANDOM ROLLS · CONSEQUENCES ARE SHOWN</small></div>
+          <div class="decision-heading"><span>WHAT DO YOU DO?</span><small>CHOOSE YOUR ACTION · THEN ROLL A D20</small></div>
           <div class="choice-options" id="encounter-options"></div>
         </div></div>
+      </section>
+
+
+      <section id="screen-roll" class="screen dice-screen" aria-labelledby="dice-title">
+        <div class="screen-kicker" id="dice-stage">THE TEST OF FATE / READY THE D20</div>
+        <div class="dice-stage-grid">
+          <div class="dice-art" aria-hidden="true">
+            <svg viewBox="0 0 260 260" role="img">
+              <polygon points="130 12 235 75 250 183 130 249 10 183 25 75" fill="#ca9c6b" stroke="#e8c18b" stroke-width="6"/>
+              <polygon points="130 28 218 84 218 170 130 220 42 170 42 84" fill="#554c3f" stroke="#f0d6a5" stroke-width="3"/>
+              <path d="M130 28L42 170L218 170Z" fill="#a1795b" stroke="#e9c696" stroke-width="3"/>
+              <text x="130" y="158" text-anchor="middle" font-size="88" fill="#fce9c7" font-family="Georgia,serif">20</text>
+            </svg>
+            <span>ONE ROLL · NO DO-OVERS</span>
+          </div>
+          <div class="dice-detail">
+            <span class="label">YOUR CHOSEN ACTION</span>
+            <h2 id="dice-title" class="scene-title">The dice decide.</h2>
+            <p class="story-prose" id="dice-action"></p>
+            <div class="dice-math">
+              <div><span>ROLL</span><strong>1D20</strong></div>
+              <div><span>ABILITY BONUS</span><strong id="dice-modifier">+0</strong></div>
+              <div><span>TARGET</span><strong id="dice-dc">12</strong></div>
+              <div><span>CHANCE</span><strong id="dice-chance">45%</strong></div>
+            </div>
+            <p class="dice-hint" id="dice-hint">Meet or exceed the target to succeed. Failure opens another story path.</p>
+            <button type="button" class="primary-button" id="roll-button">ROLL THE D20 <span aria-hidden="true">✦</span></button>
+            <p class="dice-footnote">The result is rolled and saved once for this attempt. Reloading won't change it.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="screen-result" class="screen dice-screen" aria-labelledby="outcome-title">
+        <div class="screen-kicker">THE TEST OF FATE / WHAT HAPPENED</div>
+        <div class="dice-stage-grid">
+          <div class="dice-art" id="outcome-die-panel">
+            <div class="outcome-number" id="outcome-die" aria-label="D20 roll result">?</div>
+            <span id="outcome-total">D20 + 0 = 0</span>
+          </div>
+          <div class="dice-detail">
+            <span class="label" id="outcome-label">THE RESULT</span>
+            <h2 id="outcome-title" class="scene-title">A road opens.</h2>
+            <p class="story-prose" id="outcome-scene"></p>
+            <p class="dice-hint" id="outcome-consequence"></p>
+            <div class="status-strip" id="status-result"></div>
+            <button type="button" class="primary-button" id="outcome-next">CONTINUE YOUR STORY <span aria-hidden="true">→</span></button>
+          </div>
+        </div>
       </section>
 
       <section id="screen-finale" class="screen scene-screen" aria-labelledby="finale-title">
@@ -112,7 +160,7 @@
           <h2 class="scene-title" id="finale-title">One more decision.</h2>
           <p class="story-prose" id="finale-scene"></p>
           <div class="status-strip" id="status-finale"></div>
-          <div class="decision-heading"><span>HOW WILL YOU FINISH?</span><small>THERE IS NO PERFECT ANSWER</small></div>
+          <div class="decision-heading"><span>HOW WILL YOU FINISH?</span><small>YOUR FINAL ACTION REQUIRES A D20 ROLL</small></div>
           <div class="choice-options" id="finale-options"></div>
         </div></div>
       </section>
@@ -143,7 +191,7 @@
     </main>
     <footer><span>THE UNRELIABLE MAP · AN ORIGINAL DAILY STORY GAME</span><span>REDDIT ACCOUNT SAVES · LOCAL-ONLY DEVELOPMENT FALLBACK</span></footer>
   </div>
-  <dialog id="help-dialog" aria-labelledby="help-title"><div class="help-sheet"><button class="close-help" id="help-close" type="button" aria-label="Close help">×</button><span class="label">FIELD GUIDE</span><h2 id="help-title">How to survive a map that lies</h2><p>Every day, everyone receives the same journey. Play as a Warden, Scribe, or Tinker, then choose one of three routes. The chart may be outdated; a witness and a fresh report help you decide.</p><p>You have one scouting lantern. Use it to check whether a chosen route is reliable. Then face an encounter and a final decision; each choice changes your Resolve, Supplies, Clues, or Promise.</p><p><strong>Keep Resolve above zero</strong> to reach the end. Gain <strong>3 Promise</strong> to complete your quest, or <strong>3 Clues</strong> to uncover a secret. There are no dice rolls and no AI-generated outcomes.</p><p>Your Reddit progress syncs to your account within this subreddit installation. In localhost development, the demo uses browser-only saves. Replay to explore another branch, then share your outcome in the Reddit comments.</p><button type="button" class="primary-button" id="help-done">UNDERSTOOD <span aria-hidden="true">→</span></button></div></dialog>
+  <dialog id="help-dialog" aria-labelledby="help-title"><div class="help-sheet"><button class="close-help" id="help-close" type="button" aria-label="Close help">×</button><span class="label">FIELD GUIDE</span><h2 id="help-title">How to survive a map that lies</h2><p>Every day, everyone receives the same journey. Play as a Warden, Scribe, or Tinker, then choose one of three routes. The chart may be outdated; a witness and a fresh report help you decide.</p><p>You have one scouting lantern. Use it to check whether a chosen route is reliable. Then face an encounter and a final decision; each action requires a real D20 check. The result can change your Resolve, Supplies, Clues, or Promise.</p><p><strong>Keep Resolve above zero</strong> to reach the end. Gain <strong>3 Promise</strong> to complete your quest, or <strong>3 Clues</strong> to uncover a secret. Roll a D20 after selecting one of three actions. Add your displayed ability bonus; meeting the target succeeds. A natural 20 always succeeds and a natural 1 always fails. Failed encounter rolls open a recovery story with three different actions. Dice are rolled securely by the Reddit server and saved to your account; there are no AI-generated outcomes.</p><p>Your Reddit progress syncs to your account within this subreddit installation. In localhost development, the demo uses browser-only saves. Replay to explore another branch, then share your outcome in the Reddit comments.</p><button type="button" class="primary-button" id="help-done">UNDERSTOOD <span aria-hidden="true">→</span></button></div></dialog>
   <dialog id="erase-dialog" aria-labelledby="erase-title"><div class="help-sheet"><h2 id="erase-title">Delete your adventures?</h2><p>This permanently deletes the current journey and your saved history from this app's Reddit installation. You can start again afterward. This does not delete anything on Reddit outside the game.</p><div class="actions"><button type="button" class="ghost-button" id="erase-cancel">CANCEL</button><button type="button" class="delete-button" id="erase-confirm">YES, DELETE MY SAVES</button></div></div></dialog>
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 </body>

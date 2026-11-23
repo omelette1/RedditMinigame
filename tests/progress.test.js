@@ -5,6 +5,18 @@ import { accountKey, getAccountProgress, updateAccountProgress, deleteAccountPro
 
 const DAY = "2026-11-22";
 const OTHER = "2026-11-23";
+const firstActions = [
+  { type: "start", heroId: "warden" }, { type: "route", routeId: "0" },
+  { type: "commit" }, { type: "encounter", index: 0 },
+];
+const finish = async (db, id, state, firstDie = undefined, finalDie = undefined) => {
+  // Caller never sends the die. The trusted service injects a secure D20.
+  state = await updateAccountProgress(db, id, DAY, state.revision, { type: "roll", die: firstDie });
+  state = await updateAccountProgress(db, id, DAY, state.revision, { type: "continue" });
+  state = await updateAccountProgress(db, id, DAY, state.revision, { type: "finale", index: 0 });
+  state = await updateAccountProgress(db, id, DAY, state.revision, { type: "roll", die: finalDie });
+  return state;
+};
 
 class FakeRedis {
   constructor() { this.data = new Map(); this.ttls = new Map(); this.writes = 0; }
@@ -31,98 +43,111 @@ class FakeRedis {
   }
 }
 
-test("progress is strictly keyed by the authenticated server Reddit ID", async () => {
-  const store = new FakeRedis();
-  const a = "t2_alpha";
-  const b = "t2_bravo";
+test("saves are isolated by authenticated Reddit user ID", async () => {
+  const db = new FakeRedis(), a = "t2_alpha", b = "t2_bravo";
   assert.notEqual(accountKey(a), accountKey(b));
   assert.throws(() => accountKey("../alpha"), ProgressError);
-  let one = await getAccountProgress(store, a, DAY);
-  assert.equal(one.revision, 0);
-  one = await updateAccountProgress(store, a, DAY, 0, { type: "start", heroId: "scribe", userId: b, stats: { oath: 999 } });
-  assert.equal(one.run.heroId, "scribe");
-  assert.equal(one.run.stats.oath, 0);
-  const other = await getAccountProgress(store, b, DAY);
-  assert.equal(other.run, null);
-  assert.equal(other.totalCompleted, 0);
+  const state = await updateAccountProgress(db, a, DAY, 0, {
+    type: "start", heroId: "scribe", userId: b, stats: { oath: 999 },
+  });
+  assert.equal(state.run.heroId, "scribe");
+  assert.equal(state.run.stats.oath, 0);
+  assert.equal((await getAccountProgress(db,b,DAY)).run, null);
 });
 
-test("restores the entire current run across reads and never trusts client score", async () => {
-  const store = new FakeRedis();
-  const id = "t2_reader";
-  let state = await getAccountProgress(store,id,DAY);
-  for (const action of [
-    {type:"start",heroId:"warden"},{type:"route",routeId:"0"},{type:"scout"},
-    {type:"commit"},{type:"encounter",index:0},{type:"finale",index:0,score:999999}
-  ]) {
-    state = await updateAccountProgress(store,id,DAY,state.revision,action);
-    const roundTrip = await getAccountProgress(store,id,DAY);
-    assert.deepEqual(roundTrip.run,state.run);
+test("each pending action and dice outcome survives a fresh account read", async () => {
+  const db = new FakeRedis(), id = "t2_saved";
+  let state = await getAccountProgress(db,id,DAY);
+  for (const action of firstActions) {
+    state = await updateAccountProgress(db,id,DAY,state.revision,action);
+    assert.deepEqual((await getAccountProgress(db,id,DAY)).run,state.run);
   }
+  assert.equal(state.run.phase, "roll");
+  state = await updateAccountProgress(db,id,DAY,state.revision,{ type: "roll", die: 999 });
+  assert.equal(state.run.phase, "result");
+  assert.ok(state.run.lastRoll.die >= 1 && state.run.lastRoll.die <= 20);
+  assert.deepEqual((await getAccountProgress(db,id,DAY)).run,state.run);
+  assert.equal(db.ttls.get(accountKey(id)),PROGRESS_TTL_SECONDS);
+  const savedDie = state.run.lastRoll.die;
+  await assert.rejects(updateAccountProgress(db,id,DAY,state.revision,{ type: "roll", die: 20 }), (e) => e.status === 400);
+  assert.equal((await getAccountProgress(db,id,DAY)).run.lastRoll.die,savedDie);
+});
+
+test("final dice result and chronicle are persisted once, not per resume", async () => {
+  const db = new FakeRedis(), id = "t2_finished";
+  let state = await getAccountProgress(db,id,DAY);
+  for (const action of firstActions) state = await updateAccountProgress(db,id,DAY,state.revision,action);
+  state = await finish(db,id,state,999,999);
+  assert.equal(state.run.phase,"result");
+  assert.equal(state.totalCompleted,1);
+  assert.equal(state.history[0].rolls.length,2);
+  assert.equal(state.first.rolls.length,2);
+  const score = state.run.ending.score;
+  state = await updateAccountProgress(db,id,DAY,state.revision,{ type: "continue" });
   assert.equal(state.run.phase,"report");
   assert.equal(state.totalCompleted,1);
-  assert.notEqual(state.history[0].score,999999);
-  assert.equal(state.first.score,state.run.ending.score);
-  assert.equal(store.ttls.get(accountKey(id)),PROGRESS_TTL_SECONDS);
+  assert.equal((await getAccountProgress(db,id,DAY)).run.ending.score,score);
 });
 
-test("stale revisions and invalid actions cannot modify another device's save", async () => {
-  const store = new FakeRedis();
-  const id = "t2_collision";
-  await updateAccountProgress(store,id,DAY,0,{type:"start",heroId:"warden"});
-  await assert.rejects(updateAccountProgress(store,id,DAY,0,{type:"restart"}),e=>e.status===409);
-  await assert.rejects(updateAccountProgress(store,id,DAY,1,{type:"finale",index:1}),e=>e.status===400);
-  assert.equal((await getAccountProgress(store,id,DAY)).revision,1);
+test("invalid actions and concurrent stale revisions cannot alter a saved run", async () => {
+  const db = new FakeRedis(), id = "t2_race";
+  await updateAccountProgress(db,id,DAY,0,{ type:"start",heroId:"warden" });
+  await assert.rejects(updateAccountProgress(db,id,DAY,0,{ type:"restart" }), (e) => e.status === 409);
+  await assert.rejects(updateAccountProgress(db,id,DAY,1,{ type:"roll",die:20 }), (e) => e.status === 400);
+  assert.equal((await getAccountProgress(db,id,DAY)).revision,1);
 });
 
-test("untrusted run objects are ignored and invalid transitions rejected", () => {
+test("a failed encounter opens recovery choices on a saved run", () => {
   let p = emptyProfile();
-  p = applyProgressAction(p,DAY,{type:"start",heroId:"scribe",run:{stats:{oath:999}}});
-  assert.equal(p.run.stats.oath,0);
-  assert.throws(()=>applyProgressAction(p,DAY,{type:"finale",index:0}),ProgressError);
-  assert.throws(()=>applyProgressAction(p,DAY,{type:"route",routeId:"99"}),ProgressError);
+  for (const action of firstActions) p = applyProgressAction(p,DAY,action);
+  p = applyProgressAction(p,DAY,{ type:"roll" },1);
+  assert.equal(p.run.branch,"detour");
+  assert.equal(p.run.phase,"result");
+  p = applyProgressAction(p,DAY,{ type:"continue" });
+  assert.equal(p.run.phase,"finale");
+  p = applyProgressAction(p,DAY,{ type:"finale",index:2 });
+  assert.equal(p.run.pendingRoll.stage,"finale");
 });
 
-test("new Pacific day clears active progress but retains completed history", async () => {
-  const store = new FakeRedis();
-  const id = "t2_daily";
-  let state = await getAccountProgress(store,id,DAY);
-  for (const action of [{type:"start",heroId:"tinker"},{type:"route",routeId:"1"},
-    {type:"commit"},{type:"encounter",index:1},{type:"finale",index:1}]) {
-      state=await updateAccountProgress(store,id,DAY,state.revision,action);
-  }
-  const tomorrow=await getAccountProgress(store,id,OTHER);
-  assert.equal(tomorrow.run,null);
-  assert.equal(tomorrow.totalCompleted,1);
-  assert.equal(tomorrow.history[0].dayKey,DAY);
-  assert.equal(tomorrow.first,null);
+test("after Pacific midnight the unfinished run resets but history remains", async () => {
+  const db = new FakeRedis(), id = "t2_daily";
+  let state = await getAccountProgress(db,id,DAY);
+  for (const action of firstActions) state = await updateAccountProgress(db,id,DAY,state.revision,action);
+  state = await finish(db,id,state);
+  const next = await getAccountProgress(db,id,OTHER);
+  assert.equal(next.run,null);
+  assert.equal(next.totalCompleted,1);
+  assert.equal(next.history[0].dayKey,DAY);
 });
 
-test("replay preserves history but deleting account clears everything",async()=>{
-  const store=new FakeRedis(), id="t2_erase";
-  let state=await getAccountProgress(store,id,DAY);
-  for(const action of [{type:"start",heroId:"warden"},{type:"route",routeId:"2"},{type:"commit"},
-    {type:"encounter",index:0},{type:"finale",index:1},{type:"restart"}]){
-      state=await updateAccountProgress(store,id,DAY,state.revision,action);
-  }
+test("replay retains history and deleting user saves clears it", async () => {
+  const db = new FakeRedis(), id = "t2_erase";
+  let state = await getAccountProgress(db,id,DAY);
+  for (const action of firstActions) state = await updateAccountProgress(db,id,DAY,state.revision,action);
+  state = await finish(db,id,state);
+  state = await updateAccountProgress(db,id,DAY,state.revision,{ type:"continue" });
+  state = await updateAccountProgress(db,id,DAY,state.revision,{ type:"restart" });
   assert.equal(state.run,null);
   assert.equal(state.history.length,1);
-  const erased=await deleteAccountProgress(store,id,DAY);
+  const erased = await deleteAccountProgress(db,id,DAY);
   assert.equal(erased.history.length,0);
-  assert.equal(erased.totalCompleted,0);
-  assert.equal((await getAccountProgress(store,id,DAY)).revision,0);
+  assert.equal((await getAccountProgress(db,id,DAY)).revision,0);
 });
 
-test("profile history remains bounded",()=>{
-  let p=emptyProfile();
-  let day=Date.UTC(2026,10,1);
-  for(let i=0;i<48;i++){
-    const key=new Date(day+i*86400000).toISOString().slice(0,10);
-    for (const action of [{type:"start",heroId:"scribe"},{type:"route",routeId:"0"},
-    {type:"commit"},{type:"encounter",index:0},{type:"finale",index:0}]) p=applyProgressAction(p,key,action);
+test("bounded 40-result archive retains first-play score and two dice per entry", () => {
+  let p = emptyProfile();
+  const start = Date.UTC(2026,10,1);
+  for(let i=0;i<48;i++) {
+    const key = new Date(start+i*86400000).toISOString().slice(0,10);
+    const actions=[{ type:"start",heroId:"scribe" },{ type:"route",routeId:"0" },
+      { type:"commit" },{ type:"encounter",index:0 },{ type:"roll" },
+      { type:"continue" },{ type:"finale",index:1 },{ type:"roll" }];
+    for(const action of actions) p = applyProgressAction(p,key,action,action.type === "roll" ? 20 : undefined);
   }
-  const view=projectProfile(p,new Date(day+47*86400000).toISOString().slice(0,10));
+  const lastKey = new Date(start+47*86400000).toISOString().slice(0,10);
+  const view = projectProfile(p,lastKey);
   assert.equal(view.history.length,40);
   assert.equal(p.totalCompleted,48);
   assert.equal(Object.keys(p.firstByDay).length,40);
+  assert.equal(view.first.rolls.length,2);
 });

@@ -1,10 +1,10 @@
 // Pure state transitions shared by the standalone client and trusted Reddit server.
 // The caller NEVER supplies an identity, score, history, stat block or full run.
-import { getDispatch, HEROES, startRun, chooseRoute, scout, advanceToEncounter, advanceEncounter, conclude } from "./story.js";
+import { getDispatch, HEROES, startRun, chooseRoute, scout, advanceToEncounter, getFinaleChoices, prepareRoll, resolvePendingRoll, continueAfterRoll } from "./story.js";
 
 export const MAX_HISTORY = 40;
 export const PROFILE_SCHEMA = 1;
-const ACTIONS = new Set(["start", "route", "scout", "commit", "encounter", "finale", "restart"]);
+const ACTIONS = new Set(["start", "route", "scout", "commit", "encounter", "finale", "roll", "continue", "restart"]);
 
 export function emptyProfile() {
   return { schema: PROFILE_SCHEMA, revision: 0, currentDay: null, run: null,
@@ -52,7 +52,7 @@ function simpleText(value, max = 64) {
   return typeof value === "string" && value.length <= max;
 }
 
-export function applyProgressAction(value, dayKey, action) {
+export function applyProgressAction(value, dayKey, action, trustedDie = undefined) {
   if (!action || typeof action !== "object" || Array.isArray(action) || !ACTIONS.has(action.type)) {
     throw new ProgressError("Unknown progress action");
   }
@@ -85,28 +85,42 @@ export function applyProgressAction(value, dayKey, action) {
         p.run = advanceToEncounter(d, current);
         break;
       case "encounter":
-        if (!current || !Number.isInteger(action.index) || action.index < 0 || action.index >= d.encounterChoices.length) throw new ProgressError("Invalid encounter decision");
-        p.run = advanceEncounter(d, current, action.index);
+        if (!current || !Number.isInteger(action.index) || action.index < 0 || action.index >= d.encounterChoices.length)
+          throw new ProgressError("Invalid encounter decision");
+        p.run = prepareRoll(d, current, "encounter", action.index);
         break;
-      case "finale": {
-        if (!current || !Number.isInteger(action.index) || action.index < 0 || action.index >= d.finaleChoices.length) throw new ProgressError("Invalid final decision");
-        p.run = conclude(d, current, action.index);
-        const e = p.run.ending;
-        const record = {
-          dayKey, questId: d.id, questTitle: d.title, heroId: p.run.heroId,
-          routeName: e.routeName, title: e.title, rank: e.rank,
-          score: e.score, arrived: e.arrived, keptPromise: e.keptPromise, discovered: e.discovered,
-          // Store outcome/choices only. No Reddit post, comment or user content.
-          encounterChoice: p.run.encounterChoice, finalChoice: p.run.finalChoice,
-        };
-        if (!p.firstByDay[dayKey]) p.firstByDay[dayKey] = record;
-        p.history = [record, ...p.history].slice(0, MAX_HISTORY);
-        p.totalCompleted++;
-        // Retain the latest N first results rather than growing profile forever.
-        const days = Object.keys(p.firstByDay).sort().reverse();
-        for (const stale of days.slice(MAX_HISTORY)) delete p.firstByDay[stale];
+      case "finale":
+        if (!current || !Number.isInteger(action.index) || action.index < 0 ||
+            action.index >= getFinaleChoices(d, current).length) throw new ProgressError("Invalid final decision");
+        p.run = prepareRoll(d, current, "finale", action.index);
+        break;
+      case "roll": {
+        // Only the trusted server supplies a die from crypto.randomInt. The
+        // caller's action body cannot supply or override the rolled number.
+        if (!current || current.phase !== "roll" || !Number.isInteger(trustedDie) ||
+          trustedDie < 1 || trustedDie > 20) throw new ProgressError("Dice must be rolled by the server");
+        p.run = resolvePendingRoll(d, current, trustedDie);
+        if (p.run.lastRoll.stage === "finale") {
+          const e = p.run.ending;
+          const record = {
+            dayKey, questId: d.id, questTitle: d.title, heroId: p.run.heroId,
+            routeName: e.routeName, title: e.title, rank: e.rank,
+            score: e.score, arrived: e.arrived, keptPromise: e.keptPromise,
+            discovered: e.discovered, detour: e.detour, rolls: e.rolls,
+            encounterChoice: p.run.encounterChoice, finalChoice: p.run.finalChoice,
+          };
+          if (!p.firstByDay[dayKey]) p.firstByDay[dayKey] = record;
+          p.history = [record, ...p.history].slice(0, MAX_HISTORY);
+          p.totalCompleted++;
+          const days = Object.keys(p.firstByDay).sort().reverse();
+          for (const stale of days.slice(MAX_HISTORY)) delete p.firstByDay[stale];
+        }
         break;
       }
+      case "continue":
+        if (!current) throw new ProgressError("No dice outcome to continue from");
+        p.run = continueAfterRoll(current);
+        break;
     }
   } catch (error) {
     if (error instanceof ProgressError) throw error;
